@@ -32,7 +32,7 @@
 
 
 top_order <- function(X, method = "TD", max.degree = 8L) {
-  if (!is.numeric(max.degree)) {
+  if (!is.integer(max.degree)) {
     stop("'max.degreee' must be an integer larger then 1")
   } 
   if (length(max.degree) != 1) {
@@ -51,24 +51,60 @@ top_order <- function(X, method = "TD", max.degree = 8L) {
     colnames(X) <- paste0("X", seq_len(ncol(X)))
   }
   
+  p <- ncol(X)
   cov <- cov(X)
+  class(cov) <- method
 
-  # TODO:
-  # how should we specify the method ? From the article we have 
-  # - Top Down
-  # - Bottom Up
-  # - Top Down in p>n setting with set max degree
-  # - Bottom Up in p>n setting for sparse graphs 
-  
-  # We might also want to consider implementing
-  # - Greedy search from Peters and Bühlmann 2014
-  # - Ghoshal and Honorio 2018
-  # - what about Po-Ling and Bühlmann 2014 ???
-  # but do these method need an odering stage ????
-  
-  # TODO:
-  # When method specification is done - how do we implwment this in a nice way
-
-  
-  
+  theta <- numeric(0)
+  for (z in seq_len(p)) {
+    est <- sapply(seq_len(p)[-theta], function(j) {
+      est_step(cov, theta, j, max.degree)
+    })
+    theta <- c(theta, min(est))
+  }
+  return(theta)
 }
+
+
+est_step <- function(cov, theta, j, max.degree) {
+  UseMethod("est_step", cov)
+}
+
+est_step.TD <- function(cov, theta, j, max.degree) {
+  if (length(theta) > max.degree) {
+    C <- combn(theta, max.degree)
+    tmp <- sapply(seq_len(ncol(C)), function(i) {
+      1 / solve(cov[c(C[ ,i], j) , c(C[ ,i], j)])[j,j]
+    })
+    return(min(tmp))
+  } else {
+    return(1 / solve(cov[c(theta, j) , c(theta, j)])[j,j])
+  }
+} 
+
+est_step.BU <- function(cov, theta, j, max.degree) {
+  if (max.degree) {
+    # TODO
+  } else {
+    return(solve(cov[c(theta, j) , c(theta, j)])[j,j])
+  }
+}
+
+
+
+
+# TODO:
+# how should we specify the method ? From the article we have 
+# - Top Down
+# - Bottom Up
+# - Top Down in p>n setting with set max degree
+# - Bottom Up in p>n setting for sparse graphs 
+
+# We might also want to consider implementing
+# - Greedy search from Peters and Bühlmann 2014
+# - Ghoshal and Honorio 2018
+# - what about Po-Ling and Bühlmann 2014 ???
+# but do these method need an odering stage ????
+
+# TODO:
+# When method specification is done - how do we implwment this in a nice way
