@@ -31,7 +31,7 @@
 #' @export
 
 
-top_order <- function(X, method = "TD", max.degree = 8L) {
+top_order <- function(X, method = "TD", max.degree = 8L, ...) {
   if (!is.integer(max.degree)) {
     stop("'max.degreee' must be an integer larger then 1")
   } 
@@ -53,12 +53,12 @@ top_order <- function(X, method = "TD", max.degree = 8L) {
   
   p <- ncol(X)
   cov <- cov(X)
-  class(cov) <- method
+  vars <- structure(list(X = X, cov = cov(X)), class = method)
 
   theta <- numeric(0)
   for (z in seq_len(p)) {
     est <- sapply(seq_len(p)[-theta], function(j) {
-      est_step(cov, theta, j, max.degree)
+      est_step(vars, theta, j, max.degree, ...)
     })
     theta <- c(theta, min(est))
   }
@@ -66,27 +66,33 @@ top_order <- function(X, method = "TD", max.degree = 8L) {
 }
 
 
-est_step <- function(cov, theta, j, max.degree) {
-  UseMethod("est_step", cov)
+est_step <- function(vars, theta, j, max.degree, ...) {
+  UseMethod("est_step", vars)
 }
 
-est_step.TD <- function(cov, theta, j, max.degree) {
+est_step.TD <- function(vars, theta, j, max.degree, ...) {
   if (length(theta) > max.degree) {
     C <- combn(theta, max.degree)
     tmp <- sapply(seq_len(ncol(C)), function(i) {
-      1 / solve(cov[c(C[ ,i], j) , c(C[ ,i], j)])[j,j]
+      1 / solve(vars$cov[c(C[ ,i], j) , c(C[ ,i], j)])[j,j]
     })
     return(min(tmp))
   } else {
-    return(1 / solve(cov[c(theta, j) , c(theta, j)])[j,j])
+    return(1 / solve(vars$cov[c(theta, j) , c(theta, j)])[j,j])
   }
 } 
 
-est_step.BU <- function(cov, theta, j, max.degree) {
+est_step.BU <- function(vars, theta, j, max.degree, ...) {
   if (max.degree) {
+    if (missing(M)) {
+      M <- 2 # TODO what is a good default value ?
+    }
+    lambda <- 2 * sqrt(2 * M * (1 / nrow(vars$X)) * log(ncol(X)))
+    # use stats::nlm perhaps ?
+    # the glmnet does not output sd estimates 
     # TODO
   } else {
-    return(solve(cov[c(theta, j) , c(theta, j)])[j,j])
+    return(solve(vars$cov[c(theta, j) , c(theta, j)])[j,j])
   }
 }
 
