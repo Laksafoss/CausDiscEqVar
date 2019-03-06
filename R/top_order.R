@@ -54,13 +54,18 @@ top_order <- function(X, method = "TD", max.degree = 8L, ...) {
   p <- ncol(X)
   cov <- cov(X)
   vars <- structure(list(X = X, cov = cov(X)), class = method)
-
+  
+  index <- seq_len(p)
   theta <- numeric(0)
   for (z in seq_len(p)) {
-    est <- sapply(seq_len(p)[-theta], function(j) {
+    t <- which.min(sapply(index, function(j) {
       est_step(vars, theta, j, max.degree, ...)
-    })
-    theta <- c(theta, min(est))
+    }))
+    theta <- c(theta, index[t])
+    index <- index[-t]
+  }
+  if (method == "BU") {
+    theta <- rev(theta)
   }
   return(theta)
 }
@@ -78,12 +83,14 @@ est_step.TD <- function(vars, theta, j, max.degree, ...) {
     })
     return(min(tmp))
   } else {
-    return(1 / solve(vars$cov[c(theta, j) , c(theta, j)])[j,j])
+    index <- c(theta, j)
+    return(1 / solve(vars$cov[index,index])[length(index),length(index)])
   }
 } 
 
 est_step.BU <- function(vars, theta, j, max.degree, ...) {
-  if (max.degree) {
+  if (max.degree == 1) {
+    stop("This is not done yet")
     if (missing(M)) {
       M <- 2 # TODO what is a good default value ?
     }
@@ -91,11 +98,26 @@ est_step.BU <- function(vars, theta, j, max.degree, ...) {
     # use stats::nlm perhaps ?
     # the glmnet does not output sd estimates 
     # TODO
-  } else {
-    return(solve(vars$cov[c(theta, j) , c(theta, j)])[j,j])
+  } else { 
+    index <- c(theta, j)
+    return(solve(vars$cov[index,index])[length(index),length(index)])
   }
 }
 
+
+graph_from_top <- function(X, top) {
+  p <- ncol(X)
+  tmp <- sapply(top[-1], function(i) {
+    above <- top[seq_len(which(top == i)-1)]
+    fit <- lars::lars(X[, above, drop = FALSE], X[ , i], intercept = FALSE)
+    beta <- coef(fit, s=which.min(fit$Cp))
+    B <- rep(0,p)
+    B[above] <- beta
+    B
+  })
+  tmp <- cbind(0, tmp)
+  tmp[order(top),order(top)]
+}
 
 
 
