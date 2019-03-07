@@ -7,7 +7,7 @@
 top_order(X, method = "TD", ...)
 }
 \arguments{
-\item{X}{a matrix or data frame containing the oberved variables.}
+\item{X}{a matrix containing the oberved variables.}
 
 \item{max.degree}{an integer larger then 1 describing the maximum in-degree 
 in the underlying graph.}
