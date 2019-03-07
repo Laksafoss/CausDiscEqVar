@@ -89,7 +89,7 @@ est_step.BU <- function(vars, theta, j, ...) {
 
 est_step.HTD <- function(vars, theta, j, max.degree, ...) {
   if (missing(max.degree)) {
-    warning("'max.degree' was not specified. Set to 8")
+    warning("'max.degree' was not specified. Set to 2")
     max.degree <- 2L
   }
   if (length(theta) <= max.degree) {
@@ -107,21 +107,6 @@ est_step.HTD <- function(vars, theta, j, max.degree, ...) {
 
 
 
-est_step.HBU <- function(vars, theta, j, ...) {
-  if (max.degree == 1) {
-    stop("This is not done yet")
-    if (missing(M)) {
-      M <- 2 # TODO what is a good default value ?
-    }
-    lambda <- 2 * sqrt(2 * M * (1 / nrow(vars$X)) * log(ncol(X)))
-    # use stats::nlm perhaps ?
-    # the glmnet does not output sd estimates 
-    # TODO
-  } else { 
-    index <- c(theta, j)
-    return(solve(vars$cov[index,index])[length(index),length(index)])
-  }
-}
 
 graph_from_top <- function(X, top) {
   p <- ncol(X)
