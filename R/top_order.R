@@ -31,16 +31,7 @@
 #' @export
 
 
-top_order <- function(X, method = "TD", max.degree = 8L, ...) {
-  if (!is.integer(max.degree)) {
-    stop("'max.degreee' must be an integer larger then 1")
-  } 
-  if (length(max.degree) != 1) {
-    stop("'max.degree' must have length 1.")
-  } 
-  if (max.degree < 1L) {
-    stop("'max.degree' must be at least 1.")
-  }
+top_order <- function(X, method = "TD", ...) {
   if (is.data.frame(X)) {
     X <- as.matrix(X)
   }
@@ -52,43 +43,71 @@ top_order <- function(X, method = "TD", max.degree = 8L, ...) {
   }
   
   p <- ncol(X)
-  cov <- cov(X)
   vars <- structure(list(X = X, cov = cov(X)), class = method)
   
   index <- seq_len(p)
   theta <- numeric(0)
   for (z in seq_len(p)) {
     t <- which.min(sapply(index, function(j) {
-      est_step(vars, theta, j, max.degree, ...)
+      est_step(vars, theta, j, ...)
     }))
     theta <- c(theta, index[t])
     index <- index[-t]
   }
-  if (method == "BU") {
+  if (method == "BU") { # add also HBU later
     theta <- rev(theta)
   }
   return(theta)
 }
 
+#if (!is.integer(max.degree)) {
+#stop("'max.degreee' must be an integer larger then 1")
+#} 
+#if (length(max.degree) != 1) {
+#  stop("'max.degree' must have length 1.")
+#} 
+#if (max.degree < 1L) {
+#  stop("'max.degree' must be at least 1.")
+#}
 
-est_step <- function(vars, theta, j, max.degree, ...) {
+
+est_step <- function(vars, theta, j, ...) {
   UseMethod("est_step", vars)
 }
 
-est_step.TD <- function(vars, theta, j, max.degree, ...) {
-  if (length(theta) > max.degree) {
-    C <- combn(theta, max.degree)
-    tmp <- sapply(seq_len(ncol(C)), function(i) {
-      1 / solve(vars$cov[c(C[ ,i], j) , c(C[ ,i], j)])[j,j]
+est_step.TD <- function(vars, theta, j, ...) {
+  set <- c(theta, j)
+  return(1 / solve(vars$cov[set,set])[length(set),length(set)])
+} 
+
+
+est_step.BU <- function(vars, theta, j, ...) {
+  set <- c(theta, j)
+  return(solve(vars$cov[set,set])[length(set),length(set)])
+}
+
+
+est_step.HTD <- function(vars, theta, j, max.degree, ...) {
+  if (missing(max.degree)) {
+    warning("'max.degree' was not specified. Set to 8")
+    max.degree <- 2L
+  }
+  if (length(theta) <= max.degree) {
+    set <- c(theta, j)
+    return(1 / solve(vars$cov[set,set])[length(set),length(set)])
+  } else {
+    CC <- rbind(combn(theta, max.degree),j)
+    tmp <- sapply(seq_len(ncol(CC)), function(i) {
+      C <- CC[,i]
+      1 / solve(vars$cov[C,C])[length(C),length(C)]
     })
     return(min(tmp))
-  } else {
-    index <- c(theta, j)
-    return(1 / solve(vars$cov[index,index])[length(index),length(index)])
   }
 } 
 
-est_step.BU <- function(vars, theta, j, max.degree, ...) {
+
+
+est_step.HBU <- function(vars, theta, j, ...) {
   if (max.degree == 1) {
     stop("This is not done yet")
     if (missing(M)) {
@@ -104,13 +123,19 @@ est_step.BU <- function(vars, theta, j, max.degree, ...) {
   }
 }
 
-
 graph_from_top <- function(X, top) {
   p <- ncol(X)
   tmp <- sapply(top[-1], function(i) {
     above <- top[seq_len(which(top == i)-1)]
-    fit <- lars::lars(X[, above, drop = FALSE], X[ , i], intercept = FALSE)
-    beta <- coef(fit, s=which.min(fit$Cp))
+    if (length(above) == 1) {
+      fit <- glmnet::cv.glmnet(cbind(1,X[ ,above, drop = FALSE]), X[ ,i], 
+                               type.measure = "mse", alpha = 1, intercept=FALSE)
+      beta <- fit$glmnet.fit$beta[-1,which(fit$lambda == fit$lambda.1se)]
+    } else {
+      fit <- glmnet::cv.glmnet(X[,above, drop = FALSE], X[ ,i], 
+                               type.measure = "mse", alpha = 1, intercept=FALSE)
+      beta <- fit$glmnet.fit$beta[,which(fit$lambda == fit$lambda.1se)]
+    }
     B <- rep(0,p)
     B[above] <- beta
     B
@@ -118,7 +143,6 @@ graph_from_top <- function(X, top) {
   tmp <- cbind(0, tmp)
   tmp[order(top),order(top)]
 }
-
 
 
 # TODO:
