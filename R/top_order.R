@@ -81,10 +81,16 @@ est_step.TD <- function(vars, theta, j, ...) {
 } 
 
 
+est_step.BU <- function(vars, theta, j, ...) {
+  set <- c(theta, j)
+  return(solve(vars$cov[set,set])[length(set),length(set)])
+}
+
+
 est_step.HTD <- function(vars, theta, j, max.degree, ...) {
   if (missing(max.degree)) {
     warning("'max.degree' was not specified. Set to 8")
-    max.degree <- 8L
+    max.degree <- 2L
   }
   if (length(theta) <= max.degree) {
     set <- c(theta, j)
@@ -99,10 +105,6 @@ est_step.HTD <- function(vars, theta, j, max.degree, ...) {
   }
 } 
 
-est_step.BU <- function(vars, theta, j, ...) {
-  set <- c(theta, j)
-  return(solve(vars$cov[set,set])[length(set),length(set)])
-}
 
 
 est_step.HBU <- function(vars, theta, j, ...) {
@@ -125,8 +127,15 @@ graph_from_top <- function(X, top) {
   p <- ncol(X)
   tmp <- sapply(top[-1], function(i) {
     above <- top[seq_len(which(top == i)-1)]
-    fit <- lars::lars(X[, above, drop = FALSE], X[ , i], intercept = FALSE)
-    beta <- coef(fit, s=which.min(fit$Cp))
+    if (length(above) == 1) {
+      fit <- glmnet::cv.glmnet(cbind(1,X[ ,above, drop = FALSE]), X[ ,i], 
+                               type.measure = "mse", alpha = 1, intercept=FALSE)
+      beta <- fit$glmnet.fit$beta[-1,which(fit$lambda == fit$lambda.1se)]
+    } else {
+      fit <- glmnet::cv.glmnet(X[,above, drop = FALSE], X[ ,i], 
+                               type.measure = "mse", alpha = 1, intercept=FALSE)
+      beta <- fit$glmnet.fit$beta[,which(fit$lambda == fit$lambda.1se)]
+    }
     B <- rep(0,p)
     B[above] <- beta
     B
@@ -134,7 +143,6 @@ graph_from_top <- function(X, top) {
   tmp <- cbind(0, tmp)
   tmp[order(top),order(top)]
 }
-
 
 
 # TODO:

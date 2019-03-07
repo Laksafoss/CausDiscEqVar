@@ -29,9 +29,10 @@ analysis <- function(p, pc, l = 0.3, u = 1, n = 100, sigma = 1,
                      alpha = rep(1, ncol(B)), method = c("TD","BU"), ...) {
   B <- simB(p, pc, l, u)
   X <- simX(B, n, sigma, alpha)
-  order <- sample(seq_len(ncol(X)))
-  B <- B[order, order]
-  X <- X[ ,order]
+  order <- seq_len(p)
+  #order <- sample(seq_len(ncol(X)))
+  #B <- B[order, order]
+  #X <- X[ ,order]
   
   res <- data.frame(
     expand.grid(method = method, stringsAsFactors = F),
@@ -42,25 +43,53 @@ analysis <- function(p, pc, l = 0.3, u = 1, n = 100, sigma = 1,
     Recall = NA,
     Flipped = NA,
     FDR = NA)
+  
+  large_res <- list(simulated = list(order = order, B = B))
+  
   for (i in seq_len(nrow(res))) {
     top <- top_order(X, method = res[i,"method"], ...)
     Bhat <- graph_from_top(X, top)
     
-    res[i, "Kendall"] <- 0 #TODO
+    large_res[[res[i,"method"]]] <- list(order = top, B = Bhat)
+    
+    tri <- upper.tri(matrix(0,p,p))
+    res[i, "Kendall"] <- (2 / (p * (p - 1))) * 
+      sum(sign(outer(order,order,"-")[tri] * outer(top,top,"-")[tri]))
     res[i, "Recall"] <- round(mean(which(B != 0) %in% which(Bhat != 0)) * 100)
     res[i, "Flipped"] <- round(mean(which(t(Bhat) != 0) %in% which(B != 0)) * 100)
     res[i, "FDR"] <- round(mean(which(Bhat != 0) %in% which(B == 0)) * 100) 
   }
-  return(res)
+  return(structure(list(small_res = res, large_res = large_res), 
+                   class = "top_analysis"))
 }
 
 
-wrapper_analysis <- function(m, n, p, pc, l, u, sigma, method, ...) {
-  Z <- expand.grid(n = n, p = p, pc = pc, l = l, u = u, sigma = sigma)
-  W <- replicate(m, mapply(function(n, p, pc, l, u, sigma){
-    analysis(p = p, pc = pc, l = l, u = u, 
-             n = n, sigma = sigma, method = method, ...)
-  }, n = Z$n, p = Z$p, pc = Z$pc, l = Z$l, u = Z$u, sigma = Z$sigma,
-  SIMPLIFY = FALSE))
-  Reduce(rbind, W)
+wrapper_analysis <- function(m, grid, method, ...) {
+  W <- replicate(m, mapply(function(p,pc,l,u,n,sigma) {
+    analysis(p = p, pc = pc, l = l, u = u, n = n, 
+             sigma = sigma, method = method)$small_res
+  }, p = grid$p, pc = grid$pc, l = grid$l, u = grid$u, 
+  n = grid$n, sigma = grid$sigma, SIMPLIFY = FALSE), simplify = FALSE)
+  Reduce(rbind, unlist(W, recursive = FALSE))
+}
+
+
+make_table <- function(x) {
+  Tab <- x %>% 
+    group_by(p, n , method) %>% 
+    summarize(
+      Kendall = mean(Kendall), 
+      Recall = mean(Recall), 
+      Flipped = mean(Flipped),
+      FDR = mean(FDR))
+  
+  TKen <- spread(Tab[,c("p", "n", "method", "Kendall")], method, Kendall)
+  TRec <- spread(Tab[,c("p", "n", "method", "Recall")], method, Recall)
+  TFli <- spread(Tab[,c("p", "n", "method", "Flipped")], method, Flipped)
+  TFDR <- spread(Tab[,c("p", "n", "method", "FDR")], method, FDR)
+  
+  A <- full_join(TKen, TRec, by = c("n","p"), suffix = c(".Kendall", ".Recall"))
+  B <- full_join(TFli, TFDR, by = c("n", "p"), suffix  = c(".Flipped", ".FDR"))
+  FULL <- full_join(A, B, by = c("n", "p"))
+  round(FULL, digit = 2)
 }
