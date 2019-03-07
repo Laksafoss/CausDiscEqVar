@@ -10,7 +10,8 @@
 #' @param max.degree an integer larger then 1 describing the maximum in-degree 
 #'   in the underlying graph.
 #'   
-#' @return TOP ORDER RETURNS !!
+#' @return a vector of length equal to the number of parameters indicating the 
+#'   estimated topological ordering
 #' 
 #' @examples 
 #' n <- 1000
@@ -60,16 +61,6 @@ top_order <- function(X, method = "TD", ...) {
   return(theta)
 }
 
-#if (!is.integer(max.degree)) {
-#stop("'max.degreee' must be an integer larger then 1")
-#} 
-#if (length(max.degree) != 1) {
-#  stop("'max.degree' must have length 1.")
-#} 
-#if (max.degree < 1L) {
-#  stop("'max.degree' must be at least 1.")
-#}
-
 
 est_step <- function(vars, theta, j, ...) {
   UseMethod("est_step", vars)
@@ -108,6 +99,37 @@ est_step.HTD <- function(vars, theta, j, max.degree, ...) {
 
 
 
+
+#' Find graph from topological ordering
+#' 
+#' SHORT DESCRIPTION
+#' 
+#' LONG DESCRIPTION
+#' 
+#' @param  X a matrix containing the observed variables
+#' @param top a topological ordering of the variables
+#' 
+#' @return the B graph estimated from the data
+#' 
+#' @examples 
+#' 
+#' # we create some data from the graph B
+#' n <- 1000
+#' B <- matrix(c(0,1,0,1,
+#'               0,0,2,0,
+#'               0,0,0,1,
+#'               0,0,0,0), ncol = 4, nrow = 4, byrow = T)
+#' X <- matrix(0, ncol = 4, nrow = n)
+#' for (i in 1:4) {
+#'   X[ ,i] <- X %*% B[ ,i] + rnorm(n)
+#' }
+#' 
+#' # we then find the graph using a topological ordering
+#' top <- c(1,2,3,4) # from B we know this to be the true ordering
+#' grap_from_top(X, top)
+#' 
+#' @export
+
 graph_from_top <- function(X, top) {
   p <- ncol(X)
   tmp <- sapply(top[-1], function(i) {
@@ -128,20 +150,3 @@ graph_from_top <- function(X, top) {
   tmp <- cbind(0, tmp)
   tmp[order(top),order(top)]
 }
-
-
-# TODO:
-# how should we specify the method ? From the article we have 
-# - Top Down
-# - Bottom Up
-# - Top Down in p>n setting with set max degree
-# - Bottom Up in p>n setting for sparse graphs 
-
-# We might also want to consider implementing
-# - Greedy search from Peters and Bühlmann 2014
-# - Ghoshal and Honorio 2018
-# - what about Po-Ling and Bühlmann 2014 ???
-# but do these method need an odering stage ????
-
-# TODO:
-# When method specification is done - how do we implwment this in a nice way
