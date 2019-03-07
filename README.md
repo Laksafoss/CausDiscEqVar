@@ -8,3 +8,4 @@ Laksafoss, supervised by Mathias Drton.
 
 
 ## Installation
+devtools::install_github("Laksafoss/CausDiscEqVar")
