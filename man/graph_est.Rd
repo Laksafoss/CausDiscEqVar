@@ -2,20 +2,23 @@
 % Please edit documentation in R/graph_est.R
 \name{graph_est}
 \alias{graph_est}
-\title{Estimate graph from observational data}
+\title{Estimate graph from observed data}
 \usage{
 graph_est(X, method = "TD", ...)
 }
 \arguments{
 \item{X}{a matrix or data frame containing the observed variables.}
 
-\item{method}{}
+\item{method}{the estimation method. Posible choises are TD, BU, HTD}
+
+\item{...}{terms passed to the method specific estimations steps.}
 }
 \value{
 WHAT IS RETURNED
 }
 \description{
-SHORT DESCRIPTION
+Estimates the graph of a linear SEM with assumed equal variance of the noise 
+terms.
 }
 \details{
 LONG DESCRIPTION

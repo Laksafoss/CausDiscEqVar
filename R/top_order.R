@@ -7,8 +7,9 @@
 #' MORE DETAILED DECSRIPTION
 #' 
 #' @param X a matrix containing the oberved variables.
-#' @param max.degree an integer larger then 1 describing the maximum in-degree 
-#'   in the underlying graph.
+#' @param method the estimation method. Posible choises are TD, BU, HTD
+#' @param ... terms passed to the method specific estimation steps. If the 
+#'   method TD is specified it is posible to specify a \code{max.degree}. 
 #'   
 #' @return a vector of length equal to the number of parameters indicating the 
 #'   estimated topological ordering
@@ -34,7 +35,7 @@
 
 top_order <- function(X, method = "TD", ...) {
   p <- ncol(X)
-  vars <- structure(list(X = X, cov = cov(X)), class = method)
+  vars <- structure(list(X = X, cov = stats::cov(X)), class = method)
   
   index <- seq_len(p)
   theta <- numeric(0)
@@ -50,6 +51,7 @@ top_order <- function(X, method = "TD", ...) {
   }
   return(theta)
 }
+
 
 
 est_step <- function(vars, theta, j, ...) {
@@ -77,7 +79,7 @@ est_step.HTD <- function(vars, theta, j, max.degree, ...) {
     set <- c(theta, j)
     return(1 / solve(vars$cov[set,set])[length(set),length(set)])
   } else {
-    CC <- rbind(combn(theta, max.degree),j)
+    CC <- rbind(utils::combn(theta, max.degree),j)
     tmp <- sapply(seq_len(ncol(CC)), function(i) {
       C <- CC[,i]
       1 / solve(vars$cov[C,C])[length(C),length(C)]

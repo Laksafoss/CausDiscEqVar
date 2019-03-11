@@ -9,8 +9,10 @@ top_order(X, method = "TD", ...)
 \arguments{
 \item{X}{a matrix containing the oberved variables.}
 
-\item{max.degree}{an integer larger then 1 describing the maximum in-degree 
-in the underlying graph.}
+\item{method}{the estimation method. Posible choises are TD, BU, HTD}
+
+\item{...}{terms passed to the method specific estimation steps. If the 
+method TD is specified it is posible to specify a \code{max.degree}.}
 }
 \value{
 a vector of length equal to the number of parameters indicating the 

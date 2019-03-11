@@ -17,7 +17,7 @@
 #' B <- matrix(c(0,1,0,1,
 #'               0,0,2,0,
 #'               0,0,0,1,
-#'               0,0,0,0), ncol = 4, nrow = 4, byrow = T)
+#'               0,0,0,0), ncol = 4, nrow = 4, byrow = TRUE)
 #' X <- matrix(0, ncol = 4, nrow = n)
 #' for (i in 1:4) {
 #'   X[ ,i] <- X %*% B[ ,i] + rnorm(n)
@@ -25,7 +25,7 @@
 #' 
 #' # we then find the graph using a topological ordering
 #' top <- c(1,2,3,4) # from B we know this to be the true ordering
-#' grap_from_top(X, top)
+#' graph_from_top(X, top)
 #' 
 #' @export
 
