@@ -27,7 +27,9 @@
 #' for (i in seq_len(p)[-1]) {
 #'   X[ ,i] <- X[ ,i-1] + X[ ,i]
 #' }
-#' order <- top_order(X)
+#' order <- top_order(X, method = "TD")
+#' order <- top_order(X, method = "BU")
+#' order <- top_order(X, method = "HTD")
 #' 
 #' 
 #' @export
@@ -60,13 +62,15 @@ est_step <- function(vars, theta, j, ...) {
 
 est_step.TD <- function(vars, theta, j, ...) {
   set <- c(theta, j)
-  return(1 / solve(vars$cov[set,set])[length(set),length(set)])
+  ind <- length(set)
+  return(1 / solve(vars$cov[set,set])[ind,ind])
 } 
 
 
 est_step.BU <- function(vars, theta, j, ...) {
-  set <- c(theta, j)
-  return(solve(vars$cov[set,set])[length(set),length(set)])
+  set <- setdiff(seq_len(ncol(vars$cov)), theta)
+  ind <- which(set == j)
+  return(solve(vars$cov[set,set])[ind,ind])
 }
 
 
