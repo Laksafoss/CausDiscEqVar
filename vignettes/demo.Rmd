@@ -1,0 +1,30 @@
+---
+title: "CausDiscEqVar <br>  - Examples of use and selected theory"
+author: "Anna Damkjar Laksafoss"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{CausDiscEqVar}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+
+This package is based on the methodology developed in 
+W. Chen, M. Drton and Y. S. Wang, *On Causal Discovery with Equal Variance Assumption*, arXiv preprint arXiv:1807.03419 (2018)
+
+```{r, eval = FALSE}
+# the code for attaching the vingette
+devtools::install(build_vignettes = TRUE)
+```
+
+
+
+
