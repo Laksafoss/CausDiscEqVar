@@ -48,7 +48,7 @@ sim_B <- function(p, graph_setting, l, u) {
 }
 
 
-sim_X <- function(B, n, sigma, alpha = rep(1, ncol(B)) {
+sim_X <- function(B, n, sigma, alpha = rep(1, ncol(B))) {
   p <- ncol(B)
   N <- matrix(rnorm(n * p, 0, rep(alpha * sigma, each = n)), ncol = p)
   X <- matrix(0, ncol = p, nrow = n)
