@@ -18,6 +18,7 @@ Suggests:
     knitr,
     rmarkdown,
     testthat,
+    usethis,
     ggplot2,
     dplyr,
     tidyr,
