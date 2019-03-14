@@ -1,4 +1,4 @@
-#' Simulation tool for graph_est
+#' [A] Simulation tool for graph_est
 #' 
 #' This is an internal simulation function for testing preformance of the 
 #' \code{\link{graph_est}} function. 
@@ -12,7 +12,7 @@
 #' 
 #' @examples 
 #' 
-#' 
+#' @export
 
 
 sim_graph_est <- function(scenarios, m) {
@@ -52,7 +52,11 @@ sim_graph_est <- function(scenarios, m) {
   
   large_res <- Reduce(rbind, unlist(large_res, recursive = FALSE))
   class(large_res) <- c(class(large_res), "sim_analysis")
+  return(large_res)
 }
+
+
+#' @rdname sim_graph_est
 
 sim_B <- function(p, graph_setting, l, u) {
   if (p <= 50) {
@@ -85,6 +89,8 @@ sim_B <- function(p, graph_setting, l, u) {
 }
 
 
+#' @rdname sim_graph_est
+
 sim_X <- function(B, n, sigma, alpha = rep(1, ncol(B))) {
   p <- ncol(B)
   N <- matrix(rnorm(n * p, 0, rep(alpha * sigma, each = n)), ncol = p)
@@ -95,6 +101,8 @@ sim_X <- function(B, n, sigma, alpha = rep(1, ncol(B))) {
   return(X)
 }
 
+
+#' @rdname sim_graph_est
 
 standard_senarios <- function(setting) {
   if (setting == "LowDense") {
@@ -130,22 +138,78 @@ standard_senarios <- function(setting) {
 }
 
 
-make_table <- function(x) {
+
+#' @rdname  sim_graph_est
+plot_sim_analysis <- function(data) {
+  data$n <- as.factor(data$n)
+  
+  bb <- ggplot2::scale_y_continuous(position = "right")
+  
+  PK <- ggplot2::ggplot(cbind(data, dummy = "Kendall"), 
+                        ggplot2::aes(x = n, 
+                                     y = as.numeric(Kendall), 
+                                     color = method)) +
+    ggplot2::geom_boxplot(show.legend = FALSE) +
+    ggplot2::facet_grid(p ~ dummy, switch = "y")+ 
+    ggplot2::theme(axis.title.y = ggplot2::element_blank()) +
+    bb
+  
+  PR <- ggplot2::ggplot(cbind(data, dummy = "Recall"), 
+                        ggplot2::aes(x = n, 
+                                     y = as.numeric(Recall), 
+                                     color = method)) +
+    ggplot2::geom_boxplot(show.legend = FALSE) +
+    ggplot2::facet_grid(p ~ dummy)+ 
+    ggplot2::theme(strip.text.y = ggplot2::element_blank(),
+                   axis.title.y = ggplot2::element_blank()) +
+    bb
+  
+  PF <- ggplot2::ggplot(cbind(data, dummy = "Flipped"), 
+                        ggplot2::aes(x = n, 
+                                     y = as.numeric(Flipped), 
+                                     color = method)) +
+    ggplot2::geom_boxplot(show.legend = FALSE) +
+    ggplot2::facet_grid(p ~ dummy) + 
+    ggplot2::theme(strip.text.y = ggplot2::element_blank(),
+                   axis.title.y = ggplot2::element_blank()) +
+    bb
+  
+  PFDR <- ggplot2::ggplot(cbind(data, dummy = "FDR"), 
+                          ggplot2::aes(x = n, 
+                                       y = as.numeric(FDR), 
+                                       color = method)) +
+    ggplot2::geom_boxplot() +
+    ggplot2::facet_grid(p ~ dummy) + 
+    ggplot2::xlab("n") + 
+    ggplot2::theme(strip.text.y = ggplot2::element_blank(),
+                   axis.title.y = ggplot2::element_blank()) +
+    bb
+  
+  gridExtra::grid.arrange(PK, PR, PF, PFDR, 
+                          ncol = 4, widths = c(1.05,1,1,1.35))
+}
+
+
+
+
+#' @rdname sim_graph_est
+
+make_table <- function(data) {
   Tab <- x %>% 
-    group_by(p, n , method) %>% 
-    summarize(
+    dplyr::group_by(p, n , method) %>% 
+    dplyr::summarize(
       Kendall = mean(Kendall), 
       Recall = mean(Recall), 
       Flipped = mean(Flipped),
       FDR = mean(FDR))
   
-  TKen <- spread(Tab[,c("p", "n", "method", "Kendall")], method, Kendall)
-  TRec <- spread(Tab[,c("p", "n", "method", "Recall")], method, Recall)
-  TFli <- spread(Tab[,c("p", "n", "method", "Flipped")], method, Flipped)
-  TFDR <- spread(Tab[,c("p", "n", "method", "FDR")], method, FDR)
+  TKen <- tidyr::spread(Tab[,c("p", "n", "method", "Kendall")], method, Kendall)
+  TRec <- tidyr::spread(Tab[,c("p", "n", "method", "Recall")], method, Recall)
+  TFli <- tidyr::spread(Tab[,c("p", "n", "method", "Flipped")], method, Flipped)
+  TFDR <- tidyr::spread(Tab[,c("p", "n", "method", "FDR")], method, FDR)
   
-  A <- full_join(TKen, TRec, by = c("n","p"), suffix = c(".Kendall", ".Recall"))
-  B <- full_join(TFli, TFDR, by = c("n", "p"), suffix  = c(".Flipped", ".FDR"))
-  FULL <- full_join(A, B, by = c("n", "p"))
+  A <- dplyr::full_join(TKen, TRec, by = c("n","p"), suffix = c(".Kendall", ".Recall"))
+  B <- dplyr::full_join(TFli, TFDR, by = c("n", "p"), suffix  = c(".Flipped", ".FDR"))
+  FULL <- dplyr::full_join(A, B, by = c("n", "p"))
   round(FULL, digit = 2)
 }
