@@ -1,4 +1,4 @@
-#' Low dimensional dense simulation data
+#' Data - Low dimensional dense simulation
 #' 
 #' A dataset containing the result of a large scale simulation of the low 
 #' dimensional and dense setting.
@@ -23,7 +23,7 @@
 #usethis::use_data(LowDense, LowDense, overwrite = TRUE)
 
 
-#' Low dimensional sparse simulation data
+#' Data - Low dimensional sparse simulation
 #' 
 #' A dataset containing the result of a large scale simulation of the low 
 #' dimensional and sparse setting.

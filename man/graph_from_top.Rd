@@ -4,7 +4,7 @@
 \alias{graph_from_top}
 \title{Find graph from topological ordering}
 \usage{
-graph_from_top(X, top)
+graph_from_top(X, top, measure = "deviance", which = "1se")
 }
 \arguments{
 \item{X}{a matrix containing the observed variables}

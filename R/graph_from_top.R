@@ -29,22 +29,46 @@
 #' 
 #' @export
 
-graph_from_top <- function(X, top) {
+graph_from_top <- function(X, top, measure = "deviance", which = "1se") {
+  if (measure %in% c("deviance", "mse", "mae")) {
+    type.measure <- measure
+    cvmean <- function(fit) {fit$cvm}
+  } else if (measure == c("AIC")) {
+    type.measure <- "deviance"
+    cvmean <- function(fit) {fit$cvm + 2 * fit$glmnet.fit$df}
+  } else if (measure == c("BIC")) {
+    type.measure <- "deviance"
+    cvmean <- function(fit) {fit$cvm + 
+        log(fit$glmnet.fit$nobs) * fit$glmnet.fit$df}
+  }
+  
   p <- ncol(X)
+  
   tmp <- sapply(top[-1], function(i) {
-    above <- top[seq_len(which(top == i)-1)]
+    above <- A <- top[seq_len(which(top == i)-1)]
     if (length(above) == 1) {
-      fit <- glmnet::cv.glmnet(cbind(1,X[ ,above, drop = FALSE]), X[ ,i], 
-                               type.measure = "mse", alpha = 1, intercept=FALSE)
-      beta <- fit$glmnet.fit$beta[-1,which(fit$lambda == fit$lambda.1se)]
-    } else {
-      fit <- glmnet::cv.glmnet(X[,above, drop = FALSE], X[ ,i], 
-                               type.measure = "mse", alpha = 1, intercept=FALSE)
-      beta <- fit$glmnet.fit$beta[,which(fit$lambda == fit$lambda.1se)]
+      X <- cbind(X, 1)
+      A <- c(A, ncol(X))
     }
-    B <- rep(0,p)
-    B[above] <- beta
-    B
+    fit <- glmnet::cv.glmnet(X[ , A, drop = FALSE], X[ , i], 
+                             type.measure = type.measure, 
+                             alpha = 1, intercept=FALSE)
+    cvm <- cvmean(fit)
+    min <- which.min(cvm)
+    if (which == "min") {
+      beta <- fit$glmnet.fit$beta[,min]
+    } else if (which == "1se") {
+      index <- which.max(cvm[min] + fit$cvsd[min] >= cvm & 
+                         cvm[min] - fit$cvsd[min] <= cvm)
+      beta <- fit$glmnet.fit$beta[,index]
+    }
+    Bcol <- rep(0,p)
+    if (length(above) == 1) {
+      Bcol[above] <- beta[-length(beta)]
+    } else {
+      Bcol[above] <- beta  
+    }
+    Bcol
   })
   tmp <- cbind(0, tmp)
   tmp[order(top),order(top)]

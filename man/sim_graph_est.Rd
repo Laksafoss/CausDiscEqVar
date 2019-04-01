@@ -7,7 +7,7 @@
 \alias{standard_senarios}
 \alias{plot_sim_analysis}
 \alias{make_table}
-\title{[A] Simulation tool for graph_est}
+\title{Simulation tool for graph_est}
 \usage{
 sim_graph_est(scenarios, m)
 

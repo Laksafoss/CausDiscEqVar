@@ -1,4 +1,4 @@
-#' [A] Simulation tool for graph_est
+#' Simulation tool for graph_est
 #' 
 #' This is an internal simulation function for testing preformance of the 
 #' \code{\link{graph_est}} function. 
@@ -57,6 +57,7 @@ sim_graph_est <- function(scenarios, m) {
 
 
 #' @rdname sim_graph_est
+#' @export
 
 sim_B <- function(p, graph_setting, l, u) {
   if (p <= 50) {
@@ -90,6 +91,7 @@ sim_B <- function(p, graph_setting, l, u) {
 
 
 #' @rdname sim_graph_est
+#' @export
 
 sim_X <- function(B, n, sigma, alpha = rep(1, ncol(B))) {
   p <- ncol(B)
@@ -103,6 +105,7 @@ sim_X <- function(B, n, sigma, alpha = rep(1, ncol(B))) {
 
 
 #' @rdname sim_graph_est
+#' @export
 
 standard_senarios <- function(setting) {
   if (setting == "LowDense") {
@@ -140,6 +143,8 @@ standard_senarios <- function(setting) {
 
 
 #' @rdname  sim_graph_est
+#' @export
+
 plot_sim_analysis <- function(data) {
   data$n <- as.factor(data$n)
   
@@ -193,6 +198,7 @@ plot_sim_analysis <- function(data) {
 
 
 #' @rdname sim_graph_est
+#' @export
 
 make_table <- function(data) {
   Tab <- x %>% 

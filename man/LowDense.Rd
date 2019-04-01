@@ -3,7 +3,7 @@
 \docType{data}
 \name{LowDense}
 \alias{LowDense}
-\title{Low dimensional dense simulation data}
+\title{Data - Low dimensional dense simulation}
 \format{a data frame with 8 variables:
 \describe{
   \item{method}{the topological ordering method}

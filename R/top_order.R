@@ -74,21 +74,57 @@ est_step.BU <- function(vars, theta, j, ...) {
 }
 
 
-est_step.HTD <- function(vars, theta, j, max.degree, ...) {
-  if (missing(max.degree)) {
-    warning("'max.degree' was not specified. Set to 2")
-    max.degree <- 2L
-  }
+est_step.HTD <- function(vars, theta, j,
+                         max.degree = 2L, search = "B&B", ...) {
   if (length(theta) <= max.degree) {
     set <- c(theta, j)
     return(1 / solve(vars$cov[set,set])[length(set),length(set)])
   } else {
-    CC <- rbind(utils::combn(theta, max.degree),j)
-    tmp <- sapply(seq_len(ncol(CC)), function(i) {
-      C <- CC[,i]
-      1 / solve(vars$cov[C,C])[length(C),length(C)]
-    })
-    return(min(tmp))
+    if (search == "full") {
+      CC <- rbind(utils::combn(theta, max.degree),j)
+      tmp <- sapply(seq_len(ncol(CC)), function(i) {
+        C <- CC[,i]
+        1 / solve(vars$cov[C,C])[length(C),length(C)]
+      })
+      return(min(tmp))
+    } else if (search == "B&B") {
+      if (length(theta) >= 50) {
+        really.big <- TRUE
+      } else {
+        really.big <- FALSE
+      }
+      tmp <- leaps::regsubsets(vars$X[,theta], vars$X[,j], 
+                               nvmax = max.degree, intercept = FALSE,
+                               really.big = really.big)
+      #index <- which.min(tmp$rss)
+      #pp <- sum(summary(tmp)$which[index-1, ])
+      #return(sqrt(tmp$rss[index])/(tmp$nn - pp))
+      return(min(tmp$rss))
+    } else if (search == "OMP") {
+      index <- OMP(target = vars$X[,j], data = vars$X[,theta], max.degree)
+      set <- c(theta[index], j)
+      ind <- length(set)
+      return(1 / solve(vars$cov[set,set])[ind,ind])
+    }
   }
 } 
 
+
+
+OMP <- function(target, data, max.degree) {
+  d <- ncol(data)
+  if (d <= max.degree) {
+    return(seq_len(d))
+  }
+  
+  R <- target
+  C <- numeric(0)
+  for (i in 1:max.degree) {
+    index <- setdiff(seq_len(d),C)
+    vals <- abs(t(X[,index]) %*% R)
+    C <- c(C, index[which.max(vals)])
+    P <- X[,C] %*% solve(t(X[,C]) %*% X[,C]) %*% t(X[,C])
+    R <- (diag(ncol(P)) - P) %*% target
+  }
+  return(C)
+}

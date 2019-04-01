@@ -29,7 +29,8 @@
 #' 
 #' @export
 
-graph_est <- function(X, method = "TD", ...) {
+graph_est <- function(X, method = "TD", 
+                      measure = "deviance", which = "1se", ...) {
   if (is.data.frame(X)) {
     X <- as.matrix(X)
   }
@@ -41,10 +42,11 @@ graph_est <- function(X, method = "TD", ...) {
   }
   
   top <- top_order(X, method = "TD", ...)
-  B <- G <- graph_from_top(X, top) 
-  G[G!=0] <- 1
+  B <- G <- graph_from_top(X, top, measure, which) 
+  G[G != 0] <- 1
   
-  res <- structure(list(top_order = top, graph = G, B = B), class = "graph_est")
+  res <- structure(list(top_order = top, graph = G, B = B), 
+                   class = "graph_est")
   return(res)
 }
 

@@ -4,7 +4,7 @@
 \alias{graph_est}
 \title{Estimate graph from observed data}
 \usage{
-graph_est(X, method = "TD", ...)
+graph_est(X, method = "TD", measure = "deviance", which = "1se", ...)
 }
 \arguments{
 \item{X}{a matrix or data frame containing the observed variables.}
