@@ -38,7 +38,9 @@ order <- top_order(X)
 for (i in seq_len(p)[-1]) {
   X[ ,i] <- X[ ,i-1] + X[ ,i]
 }
-order <- top_order(X)
+order <- top_order(X, method = "TD")
+order <- top_order(X, method = "BU")
+order <- top_order(X, method = "HTD")
 
 
 }
