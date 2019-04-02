@@ -14,77 +14,118 @@
 #' 
 #' @export
 
+sim_graph_est <- function(scenarios, analysis, m) {
+  scnam <- c("p", "graph_setting", "l", "u", "unique_ordering", 
+             "n", "sigma")
+  annam <- c("method", "measure", "which", "max.degree", "search")
 
-sim_graph_est <- function(scenarios, m) {
-  nam <- c("p", "graph_setting", "l", "u", "n", "sigma", "TD", "BU", "HTD", "HBU")
-  if(! all(nam %in% names(scenarios))) {
-    if (class(scenarios) == "character") {
-      scenarios <- standard_senarios(scenarios)
-    }
+  if (! (is.data.frame(scenarios) & is.data.frame(analysis))) {
+    stop("Both 'scenarios' and 'analysis' must be data.frames")
   }
-  if (any(apply(cbind(-scenarios$l,scenarios$u), 1, sum) <= 0 )) {
-    stop("the lower bound 'l' must be smaller then the upper bound 'u' in scenarios")
+  if (! all(scnam %in% names(scenarios))) {
+    stop("One or more parameters are missing from 'scenarios'")
+  } 
+  if (! all(annam %in% names(analysis))) {
+    stop("One or more parameters are mossing from 'analysis'")
   }
-  large_res <- replicate(m, lapply(seq_len(nrow(scenarios)), function(k) {
-    s <- scenarios[k,]
-    B <- sim_B(s$p, s$graph_setting, s$l, s$u)
-    X <- sim_X(B, s$n, s$sigma)
-    order <- seq_len(s$p)
-    
-    res <- data.frame(method = names(s[7:10])[s[7:10]==TRUE],
-                      n = s$n, p = s$p, sigma = s$sigma,
-                      Kendall = NA, Recall = NA, Flipped = NA, FDR = NA,
-                      row.names = NULL, stringsAsFactors = FALSE)
-    
-    for (i in seq_len(nrow(res))) {
-      top <- top_order(X, method = res[i,"method"], ...)
-      Bhat <- graph_from_top(X, top)
-      
-      tri <- upper.tri(matrix(0,s$p, s$p))
-      res[i, "Kendall"] <- (2 / (s$p * (s$p - 1))) * 
-        sum(sign(outer(order,order,"-")[tri] * outer(top,top,"-")[tri]))
-      res[i, "Recall"] <- round(mean(which(B != 0) %in% which(Bhat != 0)) * 100)
-      res[i, "Flipped"] <- round(mean(which(t(Bhat) != 0) %in% which(B != 0)) * 100)
-      res[i, "FDR"] <- round(mean(which(Bhat != 0) %in% which(B == 0)) * 100)
-    }
-    return(res)
-  }), simplify = FALSE) 
+
+  res <- data.frame()
   
-  large_res <- Reduce(rbind, unlist(large_res, recursive = FALSE))
-  class(large_res) <- c(class(large_res), "sim_analysis")
-  return(large_res)
+  for (k in 1:m) {
+    for (i in 1:nrow(scenarios)) {
+      s <- scenarios[i,]
+      B <- sim_B(s$p, s$graph_setting, s$l, s$u, s$unique_ordering)
+      X <- sim_X(B, s$n, s$sigma)
+      order <- seq_len(s$p)
+      
+      for (j in 1:nrow(analysis)) {
+        a <- analysis[j,]
+        top <- top_order(X, a$method, a$max.degree, a$search)
+        Bhat <- graph_from_top(X, top, a$measure, a$which)
+        
+        E <- which(B != 0) # True edges
+        nE <- which(B == 0) # True non-edges
+        Ehat <- which(Bhat != 0) # estimated edges
+        nEhat <- which(Bhat == 0) # estimated non-edges
+        FEhat <- which(t(Bhat) != 0) # estimated edges flipped
+        
+        if (length(E) == 0) { E <- 0}
+        if (length(nE) == 0) { nE <- 0}
+        if (length(Ehat) == 0) { Ehat <- 0}
+        if (length(nEhat) == 0) { nEhat <- 0}
+        if (length(FEhat) == 0) { FEhat <- 0}
+        
+        sum <- data.frame(
+          Hamming = sum(E %in% nEhat, Ehat %in% nE, FEhat %in% E),
+          Kendall = kendall(order, top),
+          Recall = mean(Ehat %in% E),
+          Flipped = mean(FEhat %in% E),
+          FDR = mean(Ehat %in% nE)
+        )
+        sum <- round(sum, digits = 2)
+        
+        res <- rbind(res, cbind(s, a, sum))
+      }
+    }
+  }
+  class(res) <- c(class(res), "sim_analysis")
+  return(res)
+}
+
+
+#' @rdname sim_graph_est
+#' 
+kendall <- function(O, Ohat) {
+  p <- length(O)
+  if (p != length(Ohat)) {
+    stop("The two orderings must have same length")
+  }
+  tri <- upper.tri(matrix(0, p, p))
+  (2 / (p * (p - 1))) * 
+    sum(sign(outer(O, O, "-")[tri] * outer(Ohat, Ohat, "-")[tri]) )
 }
 
 
 #' @rdname sim_graph_est
 #' @export
-
-sim_B <- function(p, graph_setting, l, u) {
-  if (p <= 50) {
+sim_B <- function(p, graph_setting, l, u, unique_ordering = TRUE) {
+  if (graph_setting %in% c("sparse", "dense")) {
     if (graph_setting == "sparse") {
       pc <- 3/(2 * p - 2)
     } else if (graph_setting == "dense") {
       pc <- 0.3
     }
     Bsmall <- diag(1, p-1, p-1)
-    index <- upper.tri(Bsmall, diag = F)
+    if (unique_ordering) {
+      index <- upper.tri(Bsmall, diag = FALSE)
+    } else {
+      index <- upper.tri(Bsmall, diag = TRUE)
+      pc <- (2 - 2 * pc) / p + pc # should we do this ??
+    }
     Bsmall[index] <- rbinom(sum(index), 1, pc)
-  } else {
-    if (graph_setting == "A") {
+  } else if (graph_setting %in% c("A", "B")) {
+    if (unique_ordering) { 
       Bsmall <- diag(1, p-1, p-1)
-      for (j in seq_len(p-1)[-c(1:2)]) {
-        possible <- which(rowSums(Bsmall[seq_len(j-1),])<4)
-        Bsmall[sample(possible, 2), j] <- 1
+      rm <- 1:2; ch <- 2
+    } else {
+      Bsmall <- diag(0, p-1, p-1)
+      rm <- 1:3; ch <- 3
+    }
+    if (graph_setting == "A") {
+      for (j in seq_len(p-1)[-rm]) {
+        possible <- which(rowSums(Bsmall[seq_len(j-1),]) < 4)
+        Bsmall[sample(possible, ch), j] <- 1
       }
     } else if (graph_setting == "B") {
-      Bsmall <- diag(1, p-1, p-1)
-      for (j in seq_len(p-1)[-c(1:2)]) {
+      for (j in seq_len(p-1)[-rm]) {
         possible <- which(seq_len(p-1) <= min(j,10))
-        Bsmall[sample(possible, 2), j]
+        Bsmall[sample(possible, ch), j] <- 1
       }
     }
   }
-  Bsmall[Bsmall == 1] <- sample(c(1,-1), 1) * runif(sum(Bsmall), l, u)
+  
+  Bsmall[Bsmall == 1] <- sample(c(1,-1), sum(Bsmall), replace = TRUE) * 
+    runif(sum(Bsmall), l, u)
   B <- rbind(cbind(0, Bsmall), 0)
   return(B)
 }
@@ -92,7 +133,6 @@ sim_B <- function(p, graph_setting, l, u) {
 
 #' @rdname sim_graph_est
 #' @export
-
 sim_X <- function(B, n, sigma, alpha = rep(1, ncol(B))) {
   p <- ncol(B)
   N <- matrix(rnorm(n * p, 0, rep(alpha * sigma, each = n)), ncol = p)
@@ -102,44 +142,6 @@ sim_X <- function(B, n, sigma, alpha = rep(1, ncol(B))) {
   }
   return(X)
 }
-
-
-#' @rdname sim_graph_est
-#' @export
-
-standard_senarios <- function(setting) {
-  if (setting == "LowDense") {
-    scenarios <- expand.grid(p = c(5, 20, 40), graph_setting = c("dense"),
-                             l = 0.3, u = 1,
-                             n = c(100, 500, 1000), sigma = c(1),
-                             TD = TRUE, BU = TRUE, HTD = FALSE, HBU = FALSE)
-  } else if (setting == "LowSparse") {
-    scenarios <- expand.grid(p = c(5, 20, 40), graph_setting = c("dense"),
-                             l = 0.3, u = 1,
-                             n = c(100, 500, 1000), sigma = c(1),
-                             TD = TRUE, BU = TRUE, HTD = FALSE, HBU = FALSE)
-  } else if (setting == "HighA") {
-    qq <- c(0.5, 0.75, 1, 1.5, 2)
-    scenarios <- data.frame(p = c(qq * 80, qq * 100, qq * 200),
-                            graph_setting = c("A"),
-                            l = 0.7, u = 1,
-                            n = rep(c(80,100,200), each = length(qq)),
-                            sigma = 1,
-                            TD = FALSE, BU = FALSE, HTD = TRUE, HBU = TRUE)
-  } else if (setting == "HighB") {
-    qq <- c(0.5, 0.75, 1, 1.5, 2)
-    scenarios <- data.frame(p = c(qq * 80, qq * 100, qq * 200),
-                            graph_setting = c("B"),
-                            l = 0.7, u = 1,
-                            n = rep(c(80,100,200),each = length(qq)),
-                            sigma = 1,
-                            TD = FALSE, BU = FALSE, HTD = TRUE, HBU = TRUE)
-  } else {
-    stop("this is not a recognized standard simulation setting")
-  }
-  return(scenarios)
-}
-
 
 
 #' @rdname  sim_graph_est
