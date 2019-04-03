@@ -42,7 +42,27 @@
 #' 
 "LowSparse"
 
-#set.seed(700386)
-#scen <- CausDiscEqVar:::standard_senarios("LowSparse")
+# scen <- expand.grid(p = c(5,20,40),
+#                     graph_setting = "sparse",
+#                     l = 0.3,
+#                     u = 1,
+#                     unique_ordering = c(TRUE, FALSE),
+#                     n = c(100,500,1000),
+#                     sigma = 1,
+#                     stringsAsFactors = FALSE)
+# top <- expand.grid(method = c("TD", "BU"),
+#                    max.degree = NA,
+#                    search = NA,
+#                    stringsAsFactors = FALSE)
+# graph <- expand.grid(measure = c("mse", "mae", "deviance", "BIC"),
+#                      which = c("min", "1se"),
+#                      stringsAsFactors = FALSE) 
+# t <- Sys.time()
+# set.seed(700386)
+# DATA <- sim_graph_est(scen, top, graph, 1)
+# (t <- Sys.time() - t)
+# 
+# DATA
+
 #LowSparse <- CausDiscEqVar::sim_graph_est(scen, 50)
 #usethis::use_data(LowSparse, LowSparse)

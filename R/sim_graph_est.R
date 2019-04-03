@@ -14,35 +14,54 @@
 #' 
 #' @export
 
-sim_graph_est <- function(scenarios, analysis, m) {
+sim_graph_est <- function(scenarios, top, graph, m) {
   scnam <- c("p", "graph_setting", "l", "u", "unique_ordering", 
              "n", "sigma")
-  annam <- c("method", "measure", "which", "max.degree", "search")
+  topnam <- c("method", "max.degree", "search")
+  graphnam <- c("measure", "which")
 
-  if (! (is.data.frame(scenarios) & is.data.frame(analysis))) {
-    stop("Both 'scenarios' and 'analysis' must be data.frames")
+  if (! (is.data.frame(scenarios) & 
+         is.data.frame(top) & is.data.frame(graph))) {
+    stop("'scenarios', 'top' and 'graph' must all be data.frames")
   }
   if (! all(scnam %in% names(scenarios))) {
     stop("One or more parameters are missing from 'scenarios'")
   } 
-  if (! all(annam %in% names(analysis))) {
-    stop("One or more parameters are mossing from 'analysis'")
+  if (! all(topnam %in% names(top))) {
+    stop("One or more parameters are missing from 'top'")
+  }
+  if (! all(graphnam %in% names(graph))) {
+    stop("One or more parameters are missing from 'graph'")
   }
 
   res <- data.frame()
   
   for (k in 1:m) {
+    cat("Loop ", k, ": ")
+    
     for (i in 1:nrow(scenarios)) {
+      cat(i)
       s <- scenarios[i,]
       B <- sim_B(s$p, s$graph_setting, s$l, s$u, s$unique_ordering)
       X <- sim_X(B, s$n, s$sigma)
       order <- seq_len(s$p)
       
-      for (j in 1:nrow(analysis)) {
-        a <- analysis[j,]
-        top <- top_order(X, a$method, a$max.degree, a$search)
-        Bhat <- graph_from_top(X, top, a$measure, a$which)
-        
+      top_est <- apply(top, 1, function(t) {
+        top_order(X, 
+                  method = t["method"], 
+                  max.degree = t["max.degree"],
+                  search = t["search"])
+      })
+      
+      toptop <- cbind(top, "Kendall" = kendall(order, top_est))
+      
+      graph_est <- unlist(lapply(1:nrow(graph), function(i) {
+        lapply(1:ncol(top_est), function(j) {
+          graph_from_top(X, top_est[,j], measure = graph[i,"measure"], which = graph[i,"which"])
+        })
+      }), recursive = FALSE)
+
+      small_res <- sapply(graph_est, function(Bhat) {
         E <- which(B != 0) # True edges
         nE <- which(B == 0) # True non-edges
         Ehat <- which(Bhat != 0) # estimated edges
@@ -55,19 +74,21 @@ sim_graph_est <- function(scenarios, analysis, m) {
         if (length(nEhat) == 0) { nEhat <- 0}
         if (length(FEhat) == 0) { FEhat <- 0}
         
-        sum <- data.frame(
-          Hamming = sum(E %in% nEhat, Ehat %in% nE, FEhat %in% E),
-          Kendall = kendall(order, top),
-          Recall = mean(Ehat %in% E),
-          Flipped = mean(FEhat %in% E),
-          FDR = mean(Ehat %in% nE)
+        c(
+          "Hamming" = sum(E %in% nEhat, Ehat %in% nE, FEhat %in% E),
+          "Recall" = mean(Ehat %in% E),
+          "Flipped" = mean(FEhat %in% E),
+          "FDR" = mean(Ehat %in% nE)
         )
-        sum <- round(sum, digits = 2)
-        
-        res <- rbind(res, cbind(s, a, sum))
-      }
-    }
-  }
+      })
+      
+      reps <- rep(1:nrow(graph), each = nrow(top))
+      tmp <- data.frame(s, graph[reps, ], toptop, t(small_res), row.names = NULL)
+      res <- rbind(res, tmp)
+      cat(", ")
+    } 
+    cat("\n")
+  } 
   class(res) <- c(class(res), "sim_analysis")
   return(res)
 }
@@ -75,14 +96,16 @@ sim_graph_est <- function(scenarios, analysis, m) {
 
 #' @rdname sim_graph_est
 #' 
-kendall <- function(O, Ohat) {
-  p <- length(O)
-  if (p != length(Ohat)) {
-    stop("The two orderings must have same length")
-  }
+kendall <- function(true, est) {
+  p <- length(true)
   tri <- upper.tri(matrix(0, p, p))
-  (2 / (p * (p - 1))) * 
-    sum(sign(outer(O, O, "-")[tri] * outer(Ohat, Ohat, "-")[tri]) )
+  apply(est, 2, function(e) {
+    if (p != length(e)) {
+      stop("The two orderings must have same length")
+    }
+    (2 / (p * (p - 1))) * 
+      sum(sign(outer(true, true, "-")[tri] * outer(e, e, "-")[tri]) )
+  })
 }
 
 
@@ -142,7 +165,6 @@ sim_X <- function(B, n, sigma, alpha = rep(1, ncol(B))) {
   }
   return(X)
 }
-
 
 #' @rdname  sim_graph_est
 #' @export

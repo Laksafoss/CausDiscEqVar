@@ -35,11 +35,11 @@ graph_from_top <- function(X, top, measure = "deviance", which = "1se") {
     cvmean <- function(fit) {fit$cvm}
   } else if (measure == c("AIC")) {
     type.measure <- "deviance"
-    cvmean <- function(fit) {fit$cvm + 2 * fit$glmnet.fit$df}
+    cvmean <- function(fit) { fit$cvm + 2 * fit$nzero }
   } else if (measure == c("BIC")) {
     type.measure <- "deviance"
     cvmean <- function(fit) {fit$cvm + 
-        log(fit$glmnet.fit$nobs) * fit$glmnet.fit$df}
+        log(fit$glmnet.fit$nobs) * fit$nzero}
   }
   
   p <- ncol(X)
@@ -53,14 +53,20 @@ graph_from_top <- function(X, top, measure = "deviance", which = "1se") {
     fit <- glmnet::cv.glmnet(X[ , A, drop = FALSE], X[ , i], 
                              type.measure = type.measure, 
                              alpha = 1, intercept=FALSE)
+    #if (length(fit$cvm) != length(fit$nzero)) {
+    #  fit$glmnet.fit$df <- fit$glmnet.fit$df[fit$glmnet.fit$df != 0]
+    #  fit$glmnet.fit$beta <- fit$glmnet.fit$beta[ ,fit$glmnet.fit$df != 0]
+    #}
     cvm <- cvmean(fit)
     min <- which.min(cvm)
     if (which == "min") {
-      beta <- fit$glmnet.fit$beta[,min]
+      fitindex <- which(fit$glmnet.fit$lambda == fit$lambda[min])
+      beta <- fit$glmnet.fit$beta[,fitindex]
     } else if (which == "1se") {
       index <- which.max(cvm[min] + fit$cvsd[min] >= cvm & 
                          cvm[min] - fit$cvsd[min] <= cvm)
-      beta <- fit$glmnet.fit$beta[,index]
+      fitindex <- which(fit$glmnet.fit$lambda == fit$lambda[index])
+      beta <- fit$glmnet.fit$beta[,fitindex]
     }
     Bcol <- rep(0,p)
     if (length(above) == 1) {
