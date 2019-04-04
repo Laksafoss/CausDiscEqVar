@@ -41,14 +41,15 @@ top_order <- function(X, method = "TD", ...) {
   
   index <- seq_len(p)
   theta <- numeric(0)
-  for (z in seq_len(p)) {
+  for (z in seq_len(p-1)) {
     t <- which.min(sapply(index, function(j) {
       est_step(vars, theta, j, ...)
     }))
     theta <- c(theta, index[t])
     index <- index[-t]
   }
-  if (method == "BU") { # add also HBU later
+  theta <- c(theta, index)
+  if (method == "BU") {
     theta <- rev(theta)
   }
   return(theta)
@@ -73,6 +74,19 @@ est_step.BU <- function(vars, theta, j, ...) {
   return(solve(vars$cov[set,set])[ind,ind])
 }
 
+est_step.HBU <- function(vars, theta, j, ...) {
+  index <- setdiff(seq_len(ncol(X)), c(theta, j))
+  if (length(index) == 1) {
+    vars$X <- cbind(vars$X, 1)
+    index <- c(index, ncol(vars$X))
+  }
+  lambda <- 0.5 * sqrt(log(ncol(vars$X)) / nrow(vars$X))
+  fit <- natural::olasso_path(vars$X[,index, drop = FALSE], 
+                              vars$X[,j], 
+                              lambda = c(lambda, lambda * 1.5),
+                              intercept = FALSE)
+  return(fit$sig_obj[1])
+}
 
 est_step.HTD <- function(vars, theta, j,
                          max.degree = 2L, search = "B&B", ...) {

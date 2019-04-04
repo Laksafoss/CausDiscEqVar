@@ -12,7 +12,7 @@ Depends: R (>= 3.5.0)
 License: GPL
 Encoding: UTF-8
 LazyData: true
-Imports: glmnet
+Imports: glmnet, natural
 RoxygenNote: 6.1.1
 Suggests: 
     knitr,

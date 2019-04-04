@@ -14,7 +14,7 @@
 #' 
 #' @export
 
-sim_graph_est <- function(scenarios, top, graph, m) {
+sim_graph_est <- function(scenarios, top, graph, m, find_graph = TRUE) {
   scnam <- c("p", "graph_setting", "l", "u", "unique_ordering", 
              "n", "sigma")
   topnam <- c("method", "max.degree", "search")
@@ -55,32 +55,41 @@ sim_graph_est <- function(scenarios, top, graph, m) {
       
       toptop <- cbind(top, "Kendall" = kendall(order, top_est))
       
-      graph_est <- unlist(lapply(1:nrow(graph), function(i) {
-        lapply(1:ncol(top_est), function(j) {
-          graph_from_top(X, top_est[,j], measure = graph[i,"measure"], which = graph[i,"which"])
+      if (find_graph) {
+        graph_est <- unlist(lapply(1:nrow(graph), function(i) {
+          lapply(1:ncol(top_est), function(j) {
+            graph_from_top(X, top_est[,j], measure = graph[i,"measure"], which = graph[i,"which"])
+          })
+        }), recursive = FALSE)
+        
+        small_res <- sapply(graph_est, function(Bhat) {
+          E <- which(B != 0) # True edges
+          nE <- which(B == 0) # True non-edges
+          Ehat <- which(Bhat != 0) # estimated edges
+          nEhat <- which(Bhat == 0) # estimated non-edges
+          FEhat <- which(t(Bhat) != 0) # estimated edges flipped
+          
+          if (length(E) == 0) { E <- 0}
+          if (length(nE) == 0) { nE <- 0}
+          if (length(Ehat) == 0) { Ehat <- 0}
+          if (length(nEhat) == 0) { nEhat <- 0}
+          if (length(FEhat) == 0) { FEhat <- 0}
+          
+          c(
+            "Hamming" = sum(E %in% nEhat, Ehat %in% nE, FEhat %in% E),
+            "Recall" = mean(E %in% Ehat),
+            "Flipped" = mean(FEhat %in% E),
+            "FDR" = mean(Ehat %in% nE)
+          )
         })
-      }), recursive = FALSE)
-
-      small_res <- sapply(graph_est, function(Bhat) {
-        E <- which(B != 0) # True edges
-        nE <- which(B == 0) # True non-edges
-        Ehat <- which(Bhat != 0) # estimated edges
-        nEhat <- which(Bhat == 0) # estimated non-edges
-        FEhat <- which(t(Bhat) != 0) # estimated edges flipped
-        
-        if (length(E) == 0) { E <- 0}
-        if (length(nE) == 0) { nE <- 0}
-        if (length(Ehat) == 0) { Ehat <- 0}
-        if (length(nEhat) == 0) { nEhat <- 0}
-        if (length(FEhat) == 0) { FEhat <- 0}
-        
-        c(
-          "Hamming" = sum(E %in% nEhat, Ehat %in% nE, FEhat %in% E),
-          "Recall" = mean(Ehat %in% E),
-          "Flipped" = mean(FEhat %in% E),
-          "FDR" = mean(Ehat %in% nE)
+      } else { # find_graph == FALSE
+        small_res <- c(
+          "Hamming" = NA,
+          "Recall" = NA,
+          "Flipped" = NA,
+          "FDR" = NA
         )
-      })
+      }
       
       reps <- rep(1:nrow(graph), each = nrow(top))
       tmp <- data.frame(s, graph[reps, ], toptop, t(small_res), row.names = NULL)

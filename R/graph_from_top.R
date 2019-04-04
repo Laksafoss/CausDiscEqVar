@@ -56,7 +56,7 @@ graph_from_top <- function(X, top, measure = "deviance", which = "1se") {
     #if (length(fit$cvm) != length(fit$nzero)) {
     #  fit$glmnet.fit$df <- fit$glmnet.fit$df[fit$glmnet.fit$df != 0]
     #  fit$glmnet.fit$beta <- fit$glmnet.fit$beta[ ,fit$glmnet.fit$df != 0]
-    #}
+    
     cvm <- cvmean(fit)
     min <- which.min(cvm)
     if (which == "min") {
