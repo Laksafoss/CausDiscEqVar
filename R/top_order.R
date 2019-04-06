@@ -115,7 +115,7 @@ est_step.HTD <- function(vars, theta, j,
       #return(sqrt(tmp$rss[index])/(tmp$nn - pp))
       return(min(tmp$rss))
     } else if (search == "OMP") {
-      index <- OMP(target = vars$X[,j], data = vars$X[,theta], max.degree)
+      index <- OMP(vars$X[,j], vars$X[,theta], max.degree)
       set <- c(theta[index], j)
       ind <- length(set)
       return(1 / solve(vars$cov[set,set])[ind,ind])
