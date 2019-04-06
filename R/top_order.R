@@ -125,20 +125,20 @@ est_step.HTD <- function(vars, theta, j,
 
 
 
-OMP <- function(target, data, max.degree) {
-  d <- ncol(data)
+OMP <- function(Y, X, max.degree) {
+  d <- ncol(X)
   if (d <= max.degree) {
     return(seq_len(d))
   }
   
-  R <- target
+  R <- Y
   C <- numeric(0)
   for (i in 1:max.degree) {
-    index <- setdiff(seq_len(d),C)
+    index <- setdiff(seq_len(d), C)
     vals <- abs(t(X[,index]) %*% R)
     C <- c(C, index[which.max(vals)])
     P <- X[,C] %*% solve(t(X[,C]) %*% X[,C]) %*% t(X[,C])
-    R <- (diag(ncol(P)) - P) %*% target
+    R <- (diag(ncol(P)) - P) %*% Y
   }
   return(C)
 }
