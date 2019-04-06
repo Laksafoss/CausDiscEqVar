@@ -148,4 +148,72 @@
 # LowSim <- sim_graph_est(scen, top, graph, 3)
 # (t <- Sys.time() - t)
 
-#usethis::use_data(LowSim, LowSim)
+
+#usethis::use_data(LowSim, LowSim, overwrite = TRUE)
+
+
+
+
+
+#' Data - High dimensional simulation
+#' 
+#' A dataset containing the result of a large scale simulation of the high 
+#' dimensional setting.
+#' 
+#' @format a data frame with 8 variables:
+#' \describe{
+#'   \item{p}{number of parameters}
+#'   \item{graph_setting}{Low dimensional sparse, dense or high dimensional A/B}
+#'   \item{l}{lower bound for absolute ausal effect}
+#'   \item{u}{upper bound for sbaolute causal effect}
+#'   \item{uniquq_ordering}{TRUE / FALSE}
+#'   \item{n}{number of observations}
+#'   \item{sigma}{standard deviation of the common error}
+#'   \item{measure}{Model selection parameter, "mse", "mae", "deviance", "AIC", "BIC"}
+#'   \item{which}{Model selection parameter, "min" or "1se"}
+#'   \item{method}{"TD", "BU", "HTD", "HBU"}
+#'   \item{max.degree}{HTD parameter}
+#'   \item{search}{"full", "B&B" or "OMP"}
+#'   \item{Kendall}{Kendalls tau btween the true and esimated topological ordering}
+#'   \item{Hamming}{Structual Hamming Distance between true and estimated graph}
+#'   \item{Recall}{percent of arrows true positive arrows in estimated graph}
+#'   \item{Flipped}{percent of arrows flipped compared to true graph}
+#'   \item{FDR}{percent of arrows false positivesin the estimateed graph}
+#' } 
+#' 
+"HighSim"
+
+# scen <- data.frame(p = rep(c(40, 60, 80,
+#                              50, 75, 100),2),
+#                    graph_setting = rep(c("A", "B"), each = 6),
+#                    l = 0.7,
+#                    u = 1,
+#                    unique_ordering = TRUE,
+#                    n = rep(rep(c(80,100), each = 5),2),
+#                    sigma = 1,
+#                    stringsAsFactors = FALSE)
+# 
+# top <- data.frame(method = c("HTD", "HTD", "HBU"),
+#                    max.degree = 3L,
+#                    search = c("B&B", "OMP", NA),
+#                    stringsAsFactors = FALSE)
+# 
+# t <- Sys.time()
+# set.seed(7402)
+# HighSim1 <- sim_graph_est(scen, top, m = 2)
+# (t <- Sys.time() - t)
+# 
+# t <- Sys.time()
+# set.seed(56230)
+# HighSim2 <- sim_graph_est(scen, top, m = 2)
+# (t <- Sys.time() - t)
+# 
+# t <- Sys.time()
+# set.seed(986423)
+# HighSim2 <- sim_graph_est(scen, top, m = 2)
+# (t <- Sys.time() - t)
+
+
+
+#usethis::use_data(HighSim, HighSim)
+

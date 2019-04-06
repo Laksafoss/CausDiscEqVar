@@ -1,8 +1,13 @@
 ---
 title: "CausDiscEqVar <br>  - Examples of use and selected theory"
-author: "Anna Damkjar Laksafoss"
+author: "Anna Damkjaer Laksafoss"
 date: "`r Sys.Date()`"
-output: rmarkdown::html_vignette
+output: 
+  html_document:
+    theme: flatly
+    toc: true
+    toc_float: 
+      collapsed: false
 vignette: >
   %\VignetteIndexEntry{CausDiscEqVar}
   %\VignetteEngine{knitr::rmarkdown}
@@ -14,17 +19,218 @@ knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>"
 )
+library(CausDiscEqVar)
 ```
 
+
+# Introduction
 
 This package is based on the methodology developed in 
-W. Chen, M. Drton and Y. S. Wang, *On Causal Discovery with Equal Variance Assumption*, arXiv preprint arXiv:1807.03419 (2018)
+[Chen, Drton and Wang (2018)](#Ref), with a few additions. 
 
-```{r, eval = FALSE}
-# the code for attaching the vingette
-devtools::install(build_vignettes = TRUE)
+
+
+# Theory
+
+Let $X = (X_1, ..., X_p)$ be a random vector and suppose the distribution of $X$ admits to a linear structual equation model (SEM), that is 
+$$X_j = \sum_{k\neq j}\beta_{jk}X_k + \varepsilon_j, \quad \text{for } j = 1, ..., p,$$
+where $\varepsilon_1, ...,\varepsilon_p$ are independent, zero mean random variables, and $(\beta_{jk})_{j,k\in \{1,...,p\}}$ are unknown regression parameters. Assume furthermore that that all $\varepsilon_j$ have a common and unknown finite variance $\sigma^2>0$. The covariance matrix of $X$ may be calculated by 
+$$\Sigma = \mathbb{E}(XX^T)=\sigma^2(I-B)^{-1}(I-B)^{-T},$$
+where $B$ is a $p\times p$ matrix with $jk$th entry equal to $\beta_{jk}$ and zeros in the diagonal
+
+This SEM induces a directed graph with verticies $V=\{1, ..., p\}$ and edges $E=\{(j,k): \beta_{jk} \neq 0\}$. We will assume that this graph is acyclic, which ensures that the graph has at least one sink and one source node. 
+
+In [Chen, Drton and Wang (2018)](#Ref) it is shown that 
+
+* if $X_j$ *has no parents* in the graph, then $\Sigma_{jj}=\sigma^2$.
+* if $X_j$ *has parents* in the graph, then $\Sigma_{jj}>\sigma^2$.
+* if $X_j$ *has no children* in the graph, then $\Sigma^{-1}_{jj} = 1/\sigma^2$.
+* if $X_j$ *has children* in the graph, then $\Sigma^{-1}_{jj} > 1/\sigma^2$.
+
+The first two points allows us to identify *source nodes* in the graph by finding the variables with minimal variance in $\Sigma$, and the last two points allows us to identify *sink nodes* in the graph by finding the variables with minimal precision in $\Sigma^{-1}$. 
+
+For an index $j\in \{1,...,p\}$ and set of indicies $C\subseteq \{1, ..., p\}$ define 
+$$X_{j.C} = X_j - \mathbb{E}[X_j\mid (X_k: k\in C)].$$
+Suppose now that $C$ is an ansestral set, that is, for all $j\in C$ it holds that $an(j)\subseteq C$. Then for all $j\in C$ it holds that $X_{j.C}=0$ and 
+$$X_j = \sum_{k\in C}\beta_{jk}X_k + \varepsilon_j,$$
+furthermore, for all $j\not\in C$ it holds that 
+$$X_{j.C} = \sum_{k\in pa(j)\setminus C}\beta_{jk}X_{k.C} + \varepsilon_j$$
+
+Combining these results with the points above we are able to identify the topological ordering of the graph $\mathcal{G}$ by one of the the two following methods
+
+* **Top Down:** 
+  - Identify a source node $c_1$ by variance minimization, and let $c_1$ be the first entry in the set $C$. 
+  - Condition on the set of ancestors to find $X_j.C$ for all $j\not\in C$ and identify the index of the source node $c_k$ in $(X_{j.C}:j\not\in C)$. Append this source node $c_k$ to the list of ancestors. Repeate this step $p-1$ times untill we have our topological ordering $(c_1, ..., c_p)$. 
+* **Bottom Up:**
+  - Identify a sink node $a_1$ by precision minimization, and let $C=\{1, ..., p\}\setminus \{a_1\}$.
+  - Now considering only $(X_j: j\in C)$ identify a sink $a_k$ and remove it from $C$. Repeat this step $p-1$ times untill we have our ordering topological ordering $(a_p, ..., a_1)$.
+
+
+
+
+
+# Implementation in R
+
+We have implemented two basic algorithms `top_order` and `graph_from_top` which identifies the topologcial ordering given data and the graph given a topological ordering and data respectivly. 
+
+
+
+
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+
+
+## Estiamtion of topological ordering
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+
+
+## Estimation of graph given topological ordering
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+
+
+## Helper functions
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+
+
+
+
+
+
+# Simulation studies
+
+Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+
+
+## Low dimensional dense setting
+
+```{r CreateSimData, cache = TRUE, include = FALSE}
+data("LowSim")
+data("HighSim")
+data("ArticleRes")
+library(ggplot2)
+library(dplyr)
+library(tidyr)
+
+
+SIM <- rbind(LowSim, HighSim) %>%
+    mutate(Kendall = Kendall * 50 + 50,
+           ratio = as.factor(p/n),
+           n = as.factor(n)) %>%
+    gather("Kendall", "Recall", "Flipped", "FDR", "Hamming",
+           key = "PrefMeasure",
+           value = "Preformance", factor_key = TRUE)
+
+ARTICLE <- ArticleRes %>%
+    mutate(Kendall = Kendall * 50 + 50,
+           ratio = as.factor(p/n),
+           n = as.factor(n)) %>%
+    gather("Kendall", "Recall", "Flipped", "FDR", "Hamming",
+           key = "PrefMeasure",
+           value = "Preformance", factor_key = TRUE)
 ```
 
 
 
+## Low dimensional dense setting
+
+
+```{r, warning = FALSE, echo = FALSE}
+sim <- subset(SIM, 
+              graph_setting == "dense" & l == 0.3 & 
+                measure == "deviance" & which == "1se")
+art <- subset(ARTICLE,
+              graph_setting == "dense" & l == 0.3 &
+                measure == "BIC" & which == "min")
+
+ggplot() + 
+    geom_boxplot(aes(x = n, y = Preformance, color = method), data = sim) + 
+    facet_grid(p ~ PrefMeasure) + 
+    geom_point(aes(x = n, y = Preformance, color = method), data = art, 
+               position = position_dodge(0.8), size = 2) + 
+    ggtitle("Dense Setting  -  TD, BU  -  (1se) minimize deviance along lasso path") +
+    theme(axis.title.y = element_blank(), 
+          plot.title = element_text(hjust = 0.5))
+```
+
+
+
+
+## Low dimensional sparse setting
+
+
+```{r, warning = FALSE, echo = FALSE}
+sim <- subset(SIM, 
+              graph_setting == "sparse" & l == 0.3 & 
+                measure == "deviance" & which == "1se")
+art <- subset(ARTICLE,
+              graph_setting == "sparse" & l == 0.3 &
+                measure == "BIC" & which == "min")
+
+ggplot() + 
+    geom_boxplot(aes(x = n, y = Preformance, color = method), data = sim) + 
+    facet_grid(p ~ PrefMeasure) + 
+    geom_point(aes(x = n, y = Preformance, color = method), data = art, 
+               position = position_dodge(0.8), size = 2) + 
+    ggtitle("Dense Setting  -  TD, BU  -  (1se) minimize deviance along lasso path") +
+    theme(axis.title.y = element_blank(), 
+          plot.title = element_text(hjust = 0.5))
+```
+
+
+```{r, warning = FALSE, echo = FALSE}
+sim <- subset(SIM, 
+              graph_setting == "sparse" & l == 0.3 & 
+                measure == "BIC" & which == "min")
+art <- subset(ARTICLE,
+              graph_setting == "sparse" & l == 0.3 &
+                measure == "BIC" & which == "min")
+
+ggplot() + 
+    geom_boxplot(aes(x = n, y = Preformance, color = method), data = sim) + 
+    facet_grid(p ~ PrefMeasure) + 
+    geom_point(aes(x = n, y = Preformance, color = method), data = art, 
+               position = position_dodge(0.8), size = 2) + 
+    ggtitle("Dense Setting  -  TD, BU  -  minimize BIC score along lasso path") +
+    theme(axis.title.y = element_blank(), 
+          plot.title = element_text(hjust = 0.5))
+```
+
+
+
+
+
+## High dimensional setting
+
+
+```{r, warning = FALSE, echo = FALSE}
+sim <- subset(SIM, graph_setting %in% c("A", "B") & 
+                PrefMeasure == "Kendall")
+art <- subset(ARTICLE, graph_setting %in% c("A", "B") & 
+                PrefMeasure == "Kendall")
+
+summary(sim)
+
+ggplot() + 
+    geom_boxplot(aes(x = n, y = (Preformance-50)/50, color = method), 
+                 data = sim) + 
+    facet_grid(ratio ~ search + graph_setting) + 
+    geom_point(aes(x = n, y = (Preformance-50)/50, color = method), 
+               data = art, 
+               position = position_dodge(0.8), size = 2) + 
+    ggtitle("High dimensional  -  HTD, HBU") +
+    theme(axis.title.y = element_blank(), 
+          plot.title = element_text(hjust = 0.5))
+```
+
+
+
+
+# References {#Ref}
+
+Chen, W., Drton, M. \& Wang, Y. S. (2018). On Causal Discovery with Equal Variance Assumption. *arXiv preprint arXiv:1807.03419*. 
+
+Peters, J., \& Bühlmann, P. (2014). Identifiability of Gaussian structural equation models with equal error variances. *Biometrika*, 101(1):219–228.
 

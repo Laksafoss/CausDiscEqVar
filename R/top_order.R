@@ -75,7 +75,7 @@ est_step.BU <- function(vars, theta, j, ...) {
 }
 
 est_step.HBU <- function(vars, theta, j, ...) {
-  index <- setdiff(seq_len(ncol(X)), c(theta, j))
+  index <- setdiff(seq_len(ncol(vars$X)), c(theta, j))
   if (length(index) == 1) {
     vars$X <- cbind(vars$X, 1)
     index <- c(index, ncol(vars$X))
@@ -83,7 +83,7 @@ est_step.HBU <- function(vars, theta, j, ...) {
   lambda <- 0.5 * sqrt(log(ncol(vars$X)) / nrow(vars$X))
   fit <- natural::olasso_path(vars$X[,index, drop = FALSE], 
                               vars$X[,j], 
-                              lambda = c(lambda, lambda * 1.5),
+                              lambda = c(lambda, lambda * 1.1),
                               intercept = FALSE)
   return(fit$sig_obj[1])
 }

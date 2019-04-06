@@ -2,8 +2,6 @@
 
 export(graph_est)
 export(graph_from_top)
-export(make_table)
-export(plot_sim_analysis)
 export(sim_B)
 export(sim_X)
 export(sim_graph_est)

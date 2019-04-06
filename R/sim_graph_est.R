@@ -14,7 +14,8 @@
 #' 
 #' @export
 
-sim_graph_est <- function(scenarios, top, graph, m, find_graph = TRUE) {
+sim_graph_est <- function(scenarios, top, 
+                          graph = data.frame(measure = NA, which = NA), m) {
   scnam <- c("p", "graph_setting", "l", "u", "unique_ordering", 
              "n", "sigma")
   topnam <- c("method", "max.degree", "search")
@@ -33,6 +34,8 @@ sim_graph_est <- function(scenarios, top, graph, m, find_graph = TRUE) {
   if (! all(graphnam %in% names(graph))) {
     stop("One or more parameters are missing from 'graph'")
   }
+  
+  find_graph <- ifelse(any(is.na(graph[1,])), FALSE, TRUE)
 
   res <- data.frame()
   
@@ -49,16 +52,18 @@ sim_graph_est <- function(scenarios, top, graph, m, find_graph = TRUE) {
       top_est <- apply(top, 1, function(t) {
         top_order(X, 
                   method = t["method"], 
-                  max.degree = t["max.degree"],
+                  max.degree = as.numeric(t["max.degree"]),
                   search = t["search"])
       })
       
       toptop <- cbind(top, "Kendall" = kendall(order, top_est))
       
       if (find_graph) {
-        graph_est <- unlist(lapply(1:nrow(graph), function(i) {
-          lapply(1:ncol(top_est), function(j) {
-            graph_from_top(X, top_est[,j], measure = graph[i,"measure"], which = graph[i,"which"])
+        graph_est <- unlist(lapply(1:nrow(graph), function(g) {
+          lapply(1:ncol(top_est), function(t) {
+            graph_from_top(X, top_est[,t], 
+                           measure = graph[g,"measure"], 
+                           which = graph[g,"which"])
           })
         }), recursive = FALSE)
         
@@ -77,9 +82,9 @@ sim_graph_est <- function(scenarios, top, graph, m, find_graph = TRUE) {
           
           c(
             "Hamming" = sum(E %in% nEhat, Ehat %in% nE, FEhat %in% E),
-            "Recall" = mean(E %in% Ehat),
-            "Flipped" = mean(FEhat %in% E),
-            "FDR" = mean(Ehat %in% nE)
+            "Recall" = mean(E %in% Ehat) * 100,
+            "Flipped" = mean(FEhat %in% E) * 100,
+            "FDR" = mean(Ehat %in% nE) * 100
           )
         })
       } else { # find_graph == FALSE
@@ -173,82 +178,4 @@ sim_X <- function(B, n, sigma, alpha = rep(1, ncol(B))) {
     X[ ,i] <- X%*%B[,i] + N[,i]
   }
   return(X)
-}
-
-#' @rdname  sim_graph_est
-#' @export
-
-plot_sim_analysis <- function(data) {
-  data$n <- as.factor(data$n)
-  
-  bb <- ggplot2::scale_y_continuous(position = "right")
-  
-  PK <- ggplot2::ggplot(cbind(data, dummy = "Kendall"), 
-                        ggplot2::aes(x = n, 
-                                     y = as.numeric(Kendall), 
-                                     color = method)) +
-    ggplot2::geom_boxplot(show.legend = FALSE) +
-    ggplot2::facet_grid(p ~ dummy, switch = "y")+ 
-    ggplot2::theme(axis.title.y = ggplot2::element_blank()) +
-    bb
-  
-  PR <- ggplot2::ggplot(cbind(data, dummy = "Recall"), 
-                        ggplot2::aes(x = n, 
-                                     y = as.numeric(Recall), 
-                                     color = method)) +
-    ggplot2::geom_boxplot(show.legend = FALSE) +
-    ggplot2::facet_grid(p ~ dummy)+ 
-    ggplot2::theme(strip.text.y = ggplot2::element_blank(),
-                   axis.title.y = ggplot2::element_blank()) +
-    bb
-  
-  PF <- ggplot2::ggplot(cbind(data, dummy = "Flipped"), 
-                        ggplot2::aes(x = n, 
-                                     y = as.numeric(Flipped), 
-                                     color = method)) +
-    ggplot2::geom_boxplot(show.legend = FALSE) +
-    ggplot2::facet_grid(p ~ dummy) + 
-    ggplot2::theme(strip.text.y = ggplot2::element_blank(),
-                   axis.title.y = ggplot2::element_blank()) +
-    bb
-  
-  PFDR <- ggplot2::ggplot(cbind(data, dummy = "FDR"), 
-                          ggplot2::aes(x = n, 
-                                       y = as.numeric(FDR), 
-                                       color = method)) +
-    ggplot2::geom_boxplot() +
-    ggplot2::facet_grid(p ~ dummy) + 
-    ggplot2::xlab("n") + 
-    ggplot2::theme(strip.text.y = ggplot2::element_blank(),
-                   axis.title.y = ggplot2::element_blank()) +
-    bb
-  
-  gridExtra::grid.arrange(PK, PR, PF, PFDR, 
-                          ncol = 4, widths = c(1.05,1,1,1.35))
-}
-
-
-
-
-#' @rdname sim_graph_est
-#' @export
-
-make_table <- function(data) {
-  Tab <- x %>% 
-    dplyr::group_by(p, n , method) %>% 
-    dplyr::summarize(
-      Kendall = mean(Kendall), 
-      Recall = mean(Recall), 
-      Flipped = mean(Flipped),
-      FDR = mean(FDR))
-  
-  TKen <- tidyr::spread(Tab[,c("p", "n", "method", "Kendall")], method, Kendall)
-  TRec <- tidyr::spread(Tab[,c("p", "n", "method", "Recall")], method, Recall)
-  TFli <- tidyr::spread(Tab[,c("p", "n", "method", "Flipped")], method, Flipped)
-  TFDR <- tidyr::spread(Tab[,c("p", "n", "method", "FDR")], method, FDR)
-  
-  A <- dplyr::full_join(TKen, TRec, by = c("n","p"), suffix = c(".Kendall", ".Recall"))
-  B <- dplyr::full_join(TFli, TFDR, by = c("n", "p"), suffix  = c(".Flipped", ".FDR"))
-  FULL <- dplyr::full_join(A, B, by = c("n", "p"))
-  round(FULL, digit = 2)
 }
