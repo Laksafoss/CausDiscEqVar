@@ -1,9 +1,10 @@
 Package: CausDiscEqVar
 Type: Package
 Title: Causal Discovery with Equal Variance Assumption 
-Version: 0.1.0
+Version: 0.1.2
 Author: Anna Laksafoss
 Maintainer: Anna Laksafoss <vbs190@alumni.ku.dk>
+URL: https://laksafoss.github.io/CausDiscEqVar/
 Description: Estimation of topological ordering and graphs in a setting with
     data from a linear structual equation model with the extra assuption that 
     the noise termes are independent gaussian distributed with mean zero and 

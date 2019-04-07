@@ -4,7 +4,7 @@
 \name{HighSim}
 \alias{HighSim}
 \title{Data - High dimensional simulation}
-\format{a data frame with 8 variables:
+\format{a data frame with 18 variables:
 \describe{
   \item{p}{number of parameters}
   \item{graph_setting}{Low dimensional sparse, dense or high dimensional A/B}

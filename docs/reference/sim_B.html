@@ -64,7 +64,7 @@ coefficients." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">CausDiscEqVar</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.2</span>
       </span>
     </div>
 
@@ -153,7 +153,8 @@ topological ordering</p></td>
     
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>A matrix encoding a graph.</p>
+    <p>Returns a matrix of size <code>p</code> times <code>p</code> encoding a graph 
+with regression coefficients.</p>
     
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
@@ -171,28 +172,7 @@ to i.</p>
 #&gt; [3,]    0  0.0000000 0.0000000 -0.3032418  0.0000000
 #&gt; [4,]    0  0.0000000 0.0000000  0.0000000 -0.9181873
 #&gt; [5,]    0  0.0000000 0.0000000  0.0000000  0.0000000</div><div class='input'>
-<span class='fu'>sim_B</span>(<span class='fl'>10</span>, <span class='st'>"A"</span>, <span class='fl'>0.7</span>, <span class='fl'>1</span>)</div><div class='output co'>#&gt;       [,1]       [,2]       [,3]       [,4]       [,5]       [,6]       [,7]
-#&gt;  [1,]    0 -0.9834461  0.0000000  0.7975324  0.0000000 -0.8742275 -0.8875113
-#&gt;  [2,]    0  0.0000000 -0.7866118 -0.9139155  0.9436454  0.0000000  0.0000000
-#&gt;  [3,]    0  0.0000000  0.0000000  0.8334667  0.7534842  0.9217781  0.7886100
-#&gt;  [4,]    0  0.0000000  0.0000000  0.0000000 -0.9867286  0.0000000  0.0000000
-#&gt;  [5,]    0  0.0000000  0.0000000  0.0000000  0.0000000 -0.9824863  0.0000000
-#&gt;  [6,]    0  0.0000000  0.0000000  0.0000000  0.0000000  0.0000000 -0.8628382
-#&gt;  [7,]    0  0.0000000  0.0000000  0.0000000  0.0000000  0.0000000  0.0000000
-#&gt;  [8,]    0  0.0000000  0.0000000  0.0000000  0.0000000  0.0000000  0.0000000
-#&gt;  [9,]    0  0.0000000  0.0000000  0.0000000  0.0000000  0.0000000  0.0000000
-#&gt; [10,]    0  0.0000000  0.0000000  0.0000000  0.0000000  0.0000000  0.0000000
-#&gt;             [,8]       [,9]      [,10]
-#&gt;  [1,]  0.0000000  0.0000000  0.0000000
-#&gt;  [2,]  0.0000000  0.0000000  0.0000000
-#&gt;  [3,]  0.0000000  0.0000000  0.0000000
-#&gt;  [4,]  0.0000000  0.0000000  0.0000000
-#&gt;  [5,] -0.8703960  0.0000000  0.0000000
-#&gt;  [6,] -0.9822290 -0.8142343  0.9277198
-#&gt;  [7,] -0.7681326  0.8215829 -0.9684523
-#&gt;  [8,]  0.0000000  0.9701994  0.0000000
-#&gt;  [9,]  0.0000000  0.0000000  0.8652007
-#&gt; [10,]  0.0000000  0.0000000  0.0000000</div><div class='input'>
+<span class='fu'>sim_B</span>(<span class='fl'>5</span>, <span class='st'>"sparse"</span>, <span class='fl'>0.7</span>, <span class='fl'>1</span>, <span class='kw'>uniqe_ordering</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</div><div class='output co'>#&gt; <span class='error'>Error in sim_B(5, "sparse", 0.7, 1, uniqe_ordering = FALSE): ubrugt argument (uniqe_ordering = FALSE)</span></div><div class='input'>
 </div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">

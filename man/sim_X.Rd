@@ -29,10 +29,11 @@ The \code{sim_B} function simulates a causal graph with regression
 coefficients. The graph must be encoded as an upper triangular matrix.
 }
 \examples{
+# The matrix encoding the graph with arrows:
+# 1 -> 2,  1 -> 3  and  2 -> 3
 (B <- matrix(c(0,0,0,1,0,0,1,1,0), ncol = 3))
 
+# simulate data
 sim_X(B, 10, 1)
-
-sim_X(B, 10, 1, c(1, 5, 10))
 
 }

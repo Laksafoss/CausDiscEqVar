@@ -6,7 +6,7 @@
 #' \code{graph_est} is a simple wrapper function which given data will fist 
 #' estimate the topological ordering of the causal graph using the function 
 #' \code{\link{top_order}}, and then estimate the causal graph itself using the 
-#' function \code{\link{graph_from_top}}. 
+#' function \code{\link{graph_from_top}}.
 #' 
 #' @inheritParams graph_from_top
 #' @inheritParams top_order

@@ -63,7 +63,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">CausDiscEqVar</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.2</span>
       </span>
     </div>
 
@@ -157,32 +157,24 @@ coefficients. The graph must be encoded as an upper triangular matrix.</p>
     
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'>(<span class='no'>B</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/matrix'>matrix</a></span>(<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='fl'>0</span>,<span class='fl'>0</span>,<span class='fl'>0</span>,<span class='fl'>1</span>,<span class='fl'>0</span>,<span class='fl'>0</span>,<span class='fl'>1</span>,<span class='fl'>1</span>,<span class='fl'>0</span>), <span class='kw'>ncol</span> <span class='kw'>=</span> <span class='fl'>3</span>))</div><div class='output co'>#&gt;      [,1] [,2] [,3]
+    <pre class="examples"><div class='input'><span class='co'># The matrix encoding the graph with arrows:</span>
+<span class='co'># 1 -&gt; 2,  1 -&gt; 3  and  2 -&gt; 3</span>
+(<span class='no'>B</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/matrix'>matrix</a></span>(<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='fl'>0</span>,<span class='fl'>0</span>,<span class='fl'>0</span>,<span class='fl'>1</span>,<span class='fl'>0</span>,<span class='fl'>0</span>,<span class='fl'>1</span>,<span class='fl'>1</span>,<span class='fl'>0</span>), <span class='kw'>ncol</span> <span class='kw'>=</span> <span class='fl'>3</span>))</div><div class='output co'>#&gt;      [,1] [,2] [,3]
 #&gt; [1,]    0    1    1
 #&gt; [2,]    0    0    1
 #&gt; [3,]    0    0    0</div><div class='input'>
-<span class='fu'>sim_X</span>(<span class='no'>B</span>, <span class='fl'>10</span>, <span class='fl'>1</span>)</div><div class='output co'>#&gt;              [,1]       [,2]       [,3]
-#&gt;  [1,] -0.55872582  0.6994304  1.0680653
-#&gt;  [2,] -1.39598601 -1.5372647 -2.4732923
-#&gt;  [3,] -1.36914864 -2.1249868 -1.8153382
-#&gt;  [4,]  0.82648974  4.0016095  5.7216303
-#&gt;  [5,] -0.49950853  0.7919735 -0.4439690
-#&gt;  [6,] -1.93412686 -1.5239191 -4.4655465
-#&gt;  [7,] -2.02669182 -0.9176423 -2.9052178
-#&gt;  [8,]  0.01352579  0.7840376  0.2429863
-#&gt;  [9,] -0.56260480 -1.4461271 -1.2742915
-#&gt; [10,]  0.69029351  1.0810565  0.1175527</div><div class='input'>
-<span class='fu'>sim_X</span>(<span class='no'>B</span>, <span class='fl'>10</span>, <span class='fl'>1</span>, <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='fl'>1</span>, <span class='fl'>5</span>, <span class='fl'>10</span>))</div><div class='output co'>#&gt;             [,1]      [,2]       [,3]
-#&gt;  [1,] -0.4487055 -8.701124  -8.843050
-#&gt;  [2,]  1.5901592 -4.909776  -4.170367
-#&gt;  [3,] -0.3354367  5.972825  10.588898
-#&gt;  [4,]  1.6535075 -2.281024 -26.982157
-#&gt;  [5,]  0.6250739  8.016664  11.637409
-#&gt;  [6,] -0.8832099 -3.980372  -4.650104
-#&gt;  [7,]  0.5860456  6.946410   8.382256
-#&gt;  [8,] -0.3515753 -2.447098 -13.447637
-#&gt;  [9,] -1.5872343 -5.004272 -13.815413
-#&gt; [10,]  1.2179636  3.332936   5.148892</div><div class='input'>
+<span class='co'># simulate data</span>
+<span class='fu'>sim_X</span>(<span class='no'>B</span>, <span class='fl'>10</span>, <span class='fl'>1</span>)</div><div class='output co'>#&gt;             [,1]        [,2]        [,3]
+#&gt;  [1,]  1.4042666 -0.11557251  1.85101596
+#&gt;  [2,]  0.1829870  0.22260223  1.29144096
+#&gt;  [3,] -1.6301959 -0.09758402 -0.02428655
+#&gt;  [4,] -1.1166533 -2.71256681 -3.18815300
+#&gt;  [5,]  1.4044707  2.53788974  4.26109873
+#&gt;  [6,]  0.7196067  1.76121066  2.58829278
+#&gt;  [7,]  0.1590067 -0.12270970  1.59750968
+#&gt;  [8,]  1.2461201  0.60113403  1.54382357
+#&gt;  [9,] -1.8667717 -2.31795402 -2.89937683
+#&gt; [10,] -0.1723211 -0.72949045  0.35088010</div><div class='input'>
 </div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">

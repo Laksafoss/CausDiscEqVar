@@ -4,11 +4,16 @@
 #' Given data and a topological ordering of the causal graph this function will
 #' estimate the causal graph itself. 
 #' 
-#' LONG DESCRIPTION
+#' To estimate the graph, the parents of each variable is fund via model 
+#' selection. As the underlying grap is assumed to be a DAG the parents of a 
+#' variable \eqn{X_{(j)}} must be found among the variables with a lower 
+#' ordering \eqn{(X_{(i)})_{i<j}}. 
+#' 
+#' All model selection is done via cross-validation lasso. 
 #' 
 #' @param X A matrix containing the observed variables
 #' @param top A topological ordering of the variables
-#' @param measure Either "deviance", "mse", "mae", "AIC" or "BIC".
+#' @param measure Either "mse", "mae"
 #' @param which Either "min" or "1se"
 #' 
 #' @return the coefficient graph estimated from the data. This is a graph which 

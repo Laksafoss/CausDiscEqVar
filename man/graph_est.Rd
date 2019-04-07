@@ -9,10 +9,10 @@ graph_est(X, method = "TD", measure = "deviance", which = "1se", ...)
 \arguments{
 \item{X}{A matrix containing the observed variables}
 
-\item{method}{The estimation method. Posible choises are "TD", "BU", "HTD"
+\item{method}{The estimation method. Possible choises are "TD", "BU", "HTD"
 and "HBU".}
 
-\item{measure}{Either "deviance", "mse", "mae", "AIC" or "BIC".}
+\item{measure}{Either "mse", "mae"}
 
 \item{which}{Either "min" or "1se"}
 
@@ -31,7 +31,7 @@ and "HBU".}
   The "full" search method simply looks at all possible subsets of the 
   current ansestreal set of size \code{max.degree}, the "B&B" method searches
   via a bound and branch method, and lastly "OMP" uses orthogonal matching 
-  pursuit (fprward selection) to find \code{max.degree} variables from the 
+  pursuit (forward selection) to find \code{max.degree} variables from the 
   ansestreal set.}
 }
 \value{

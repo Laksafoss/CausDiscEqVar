@@ -64,7 +64,7 @@ top_order and graph_from_top function." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">CausDiscEqVar</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.2</span>
       </span>
     </div>
 
@@ -167,17 +167,17 @@ each column is an estimated topological ordering.</p></td>
     
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>The <code>sim_graph_est</code> function returns a data frame with 18 variables and
-<code><a href='https://www.rdocumentation.org/packages/base/topics/nrow'>ncol(scenarios)</a></code> x <code><a href='https://www.rdocumentation.org/packages/base/topics/nrow'>ncol(top)</a></code> x <code><a href='https://www.rdocumentation.org/packages/base/topics/nrow'>ncol(graph)</a></code>
-x m rows. The first 13 variables are simply the input parameters that
-generated that particular output row. The remaning 5 variables describe the
-preformance measures:</p><ul>
+    <p>The <code>Kendall</code> function returnes one numeric value between -1 and 1.</p>
+<p>The <code>sim_graph_est</code> function returns a data frame with 18 variables and
+<code><a href='https://www.rdocumentation.org/packages/base/topics/nrow'>ncol(scenarios)</a></code> x <code><a href='https://www.rdocumentation.org/packages/base/topics/nrow'>ncol(top)</a></code> x <code><a href='https://www.rdocumentation.org/packages/base/topics/nrow'>ncol(graph)</a></code> x m rows. The
+first 14 variables are simply the input parameters that generated that
+particular output row. The remaning 5 variables describe the preformance
+measures:</p><ul>
 <li><p><code>Kendall</code> Kendalls tau between the true and esimated topological ordering</p></li>
 <li><p><code>Hamming</code> Structual Hamming Distance between true and estimated graph</p></li>
 <li><p><code>Recall</code> percent of arrows true positive arrows in estimated graph</p></li>
 <li><p><code>Flipped</code> percent of arrows flipped compared to true graph</p></li>
-<li><p><code>FDR</code> percent of arrows false positivesin the estimateed graph</p>
-<p>The <code>Kendall</code> function returnes one numeric value between -1 and 1.</p></li>
+<li><p><code>FDR</code> percent of arrows false positivesin the estimateed graph</p></li>
 </ul>
 
     
@@ -203,8 +203,7 @@ interior of <code>sim_graph_est</code>.</p></div>
     
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'>
-</div><span class='co'># NOT RUN {</span>
+    <pre class="examples"><span class='co'># NOT RUN {</span>
 <span class='co'>####  The two low dimensional settings from the article</span>
 
 <span class='no'>scenarios</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/expand.grid'>expand.grid</a></span>(<span class='kw'>p</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='fl'>5</span>, <span class='fl'>20</span>, <span class='fl'>40</span>),
@@ -215,19 +214,16 @@ interior of <code>sim_graph_est</code>.</p></div>
                          <span class='kw'>n</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='fl'>100</span>, <span class='fl'>500</span>, <span class='fl'>1000</span>),
                          <span class='kw'>sigma</span> <span class='kw'>=</span> <span class='fl'>1</span>,
                          <span class='kw'>stringsAsFactors</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)
-
 <span class='no'>top</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/data.frame'>data.frame</a></span>(<span class='kw'>method</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"TD"</span>, <span class='st'>"BU"</span>),
                   <span class='kw'>max.degree</span> <span class='kw'>=</span> <span class='fl'>NA</span>,
                   <span class='kw'>search</span> <span class='kw'>=</span> <span class='fl'>NA</span>,
                   <span class='kw'>M</span> <span class='kw'>=</span> <span class='fl'>NA</span>,
                   <span class='kw'>stringsAsFactors</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)
-
 <span class='no'>graph</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/data.frame'>data.frame</a></span>(<span class='kw'>measure</span> <span class='kw'>=</span> <span class='st'>"deviance"</span>,
                     <span class='kw'>which</span> <span class='kw'>=</span> <span class='st'>"1se"</span>,
                     <span class='kw'>stringAsFactors</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)
 
 <span class='no'>SIM</span> <span class='kw'>&lt;-</span> <span class='fu'>sim_graph_est</span>(<span class='no'>scenarios</span>, <span class='no'>top</span>, <span class='no'>graph</span>, <span class='kw'>m</span> <span class='kw'>=</span> <span class='fl'>500</span>)
-
 
 
 
@@ -243,22 +239,17 @@ interior of <code>sim_graph_est</code>.</p></div>
                          <span class='kw'>n</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/rep'>rep</a></span>(<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/rep'>rep</a></span>(<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='fl'>80</span>, <span class='fl'>100</span>, <span class='fl'>200</span>), <span class='kw'>each</span> <span class='kw'>=</span> <span class='fl'>5</span>), <span class='fl'>2</span>),
                          <span class='kw'>sigma</span> <span class='kw'>=</span> <span class='fl'>1</span>,
                          <span class='kw'>stringsAsFactors</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)
-
 <span class='no'>top</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/data.frame'>data.frame</a></span>(<span class='kw'>method</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"HTD"</span>, <span class='st'>"HBU"</span>),
                   <span class='kw'>max.degree</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='fl'>3L</span>, <span class='fl'>NA</span>),
                   <span class='kw'>search</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"B&amp;B"</span>, <span class='fl'>NA</span>),
                   <span class='kw'>M</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='fl'>NA</span>, <span class='fl'>0.5</span>),
                   <span class='kw'>stringsAsFactors</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)
-
 <span class='no'>graph</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/data.frame'>data.frame</a></span>(<span class='kw'>measure</span> <span class='kw'>=</span> <span class='fl'>NA</span>,
                     <span class='kw'>which</span> <span class='kw'>=</span> <span class='fl'>NA</span>,
                     <span class='kw'>stringAsFactors</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)
 
 <span class='no'>SIM</span> <span class='kw'>&lt;-</span> <span class='fu'>sim_graph_est</span>(<span class='no'>scenarios</span>, <span class='no'>top</span>, <span class='no'>graph</span>, <span class='kw'>m</span> <span class='kw'>=</span> <span class='fl'>50</span>)
-<span class='co'># }</span><div class='input'>
-
-
-</div></pre>
+<span class='co'># }</span></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>

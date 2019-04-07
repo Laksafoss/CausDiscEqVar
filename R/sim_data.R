@@ -3,7 +3,7 @@
 #' 
 #' A dataset containing the reported results from the article.
 #' 
-#' @format a data frame with 17 variables:
+#' @format a data frame with 18 variables:
 #' \describe{
 #'   \item{p}{number of parameters}
 #'   \item{graph_setting}{Low dimensional sparse, dense or high dimensional A/B}
@@ -38,7 +38,7 @@
 #   n = c(rep(rep(c(100,500,1000,100,500,1000,100,500,1000),2),4),
 #         rep(rep(c(80,100,200), each = 5),4)),
 #   sigma = 1,
-#   measure = "BIC",
+#   measure = "mse",
 #   which = "min",
 #   method = c(rep(rep(c("TD", "BU"), each = 9),4),
 #              rep(rep(c("HTD", "HBU"), each = 15),2)),
@@ -107,7 +107,7 @@
 #' A dataset containing the result of a large scale simulation of the low 
 #' dimensional setting.
 #' 
-#' @format a data frame with 8 variables:
+#' @format a data frame with 18 variables:
 #' \describe{
 #'   \item{p}{number of parameters}
 #'   \item{graph_setting}{Low dimensional sparse, dense or high dimensional A/B}
@@ -131,7 +131,6 @@
 #' 
 "LowSim"
 
-
 #usethis::use_data(LowSim, LowSim, overwrite = TRUE)
 
 
@@ -143,7 +142,7 @@
 #' A dataset containing the result of a large scale simulation of the high 
 #' dimensional setting.
 #' 
-#' @format a data frame with 8 variables:
+#' @format a data frame with 18 variables:
 #' \describe{
 #'   \item{p}{number of parameters}
 #'   \item{graph_setting}{Low dimensional sparse, dense or high dimensional A/B}

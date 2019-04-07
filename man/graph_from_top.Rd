@@ -11,7 +11,7 @@ graph_from_top(X, top, measure = "deviance", which = "1se")
 
 \item{top}{A topological ordering of the variables}
 
-\item{measure}{Either "deviance", "mse", "mae", "AIC" or "BIC".}
+\item{measure}{Either "mse", "mae"}
 
 \item{which}{Either "min" or "1se"}
 }
@@ -26,7 +26,12 @@ Given data and a topological ordering of the causal graph this function will
 estimate the causal graph itself.
 }
 \details{
-LONG DESCRIPTION
+To estimate the graph, the parents of each variable is fund via model 
+selection. As the underlying grap is assumed to be a DAG the parents of a 
+variable \eqn{X_{(j)}} must be found among the variables with a lower 
+ordering \eqn{(X_{(i)})_{i<j}}.
+
+All model selection is done via cross-validation lasso.
 }
 \examples{
 

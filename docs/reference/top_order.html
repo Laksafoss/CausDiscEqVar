@@ -65,7 +65,7 @@ noise terms have equal error variance." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">CausDiscEqVar</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.2</span>
       </span>
     </div>
 
@@ -135,7 +135,7 @@ noise terms have equal error variance.</p>
     </tr>
     <tr>
       <th>method</th>
-      <td><p>The estimation method. Posible choises are "TD", "BU", "HTD"
+      <td><p>The estimation method. Possible choises are "TD", "BU", "HTD"
 and "HBU".</p></td>
     </tr>
     <tr>
@@ -152,19 +152,49 @@ and "HBU".</p></td>
 <p>The "full" search method simply looks at all possible subsets of the 
   current ansestreal set of size <code>max.degree</code>, the "B&amp;B" method searches
   via a bound and branch method, and lastly "OMP" uses orthogonal matching 
-  pursuit (fprward selection) to find <code>max.degree</code> variables from the 
+  pursuit (forward selection) to find <code>max.degree</code> variables from the 
   ansestreal set.</p></td>
     </tr>
     </table>
     
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>A vector of length equal to the number of parameters indicating the 
+    <p>A vector of length equal to the number of parameters with the 
   estimated topological ordering is returned.</p>
     
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
-    <p>MORE DETAILED DECSRIPTION</p>
+    <p>The function <code>top_order</code> estimated the topological order of the causal
+graph. The method is based on the theory and pseudo code from Chen, Drton and 
+Wang (2018). The 4 methods "TD" (Top Down), "BU" (Bottom Up), "HTD" (High 
+dimensional Top Down) and "HBU" (High dimensional Bottom Up) are implemented
+in this function.</p>
+<p>The "TD" and "BU" methods <em>only</em> work when the number of observations 
+<code>n</code> is larger then the number of parameters <code>p</code>. Moreover the
+consistency results shown in the preprint only hold if \(n &gt; p^2 log(p)\).</p>
+<p>The "HTD" and "HBU" both require extra assumption either on the maximal 
+in-degree or on the maximal size of markov blankets in the graph respectivly. 
+Hence these methods both has parameters that allows the user to tune 
+and use different sub procedures that fit the assumptions on the graph.</p>
+<p>The "HBU" needs a tuning parameter <code>M</code> which is used in the organic 
+lasso to estimate the conditional variance: 
+$$\hat{\sigma}^2_{j,\Theta} = \min((1/n)||X_j - X_{V \ (\Theta \cup \{j\})}\beta||_2^2 + 2\lambda||\beta||_1^2)$$
+where \(\lambda = (2M(1/n)log(p))^{1/2}\).</p>
+<p>The "HTD" needs both a <code>max.degree</code> equal to the assumed maximal 
+in-degree in the graph and a <code>search</code> parameter. One of three different 
+<code>search</code> procedures "full", "B&amp;B" or "OMP" must be used. All three 
+procedures seek to find a subset of variables of size <code>max.degree</code> that
+minimize the conditional variance of the current variable in question given 
+this subset.</p>
+<p>The "full" search method simply goes through all poissible subsets of size 
+<code>max.degree</code>. The "B&amp;B" searched by bound and branch methods. Lastly the
+"OMP" procedure findes <code>max.degree</code> variables via forward selection. -</p>
+    
+    <h2 class="hasAnchor" id="references"><a class="anchor" href="#references"></a>References</h2>
+
+    
+    <p>Chen, W., Drton, M. &amp; Wang, Y. S. (2018). On Causal Discovery with Equal 
+Variance Assumption. <em>arXiv preprint arXiv:1807.03419.</em></p>
     
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
@@ -186,10 +216,11 @@ and "HBU".</p></td>
 <span class='kw'>for</span> (<span class='no'>i</span> <span class='kw'>in</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/seq'>seq_len</a></span>(<span class='no'>p</span>)[-<span class='fl'>1</span>]) {
   <span class='no'>X</span>[ ,<span class='no'>i</span>] <span class='kw'>&lt;-</span> <span class='no'>X</span>[ ,<span class='no'>i</span>-<span class='fl'>1</span>] + <span class='no'>X</span>[ ,<span class='no'>i</span>]
 }
-<span class='no'>order</span> <span class='kw'>&lt;-</span> <span class='fu'>top_order</span>(<span class='no'>X</span>, <span class='kw'>method</span> <span class='kw'>=</span> <span class='st'>"TD"</span>)
-<span class='no'>order</span> <span class='kw'>&lt;-</span> <span class='fu'>top_order</span>(<span class='no'>X</span>, <span class='kw'>method</span> <span class='kw'>=</span> <span class='st'>"BU"</span>)
-<span class='no'>order</span> <span class='kw'>&lt;-</span> <span class='fu'>top_order</span>(<span class='no'>X</span>, <span class='kw'>method</span> <span class='kw'>=</span> <span class='st'>"HTD"</span>, <span class='kw'>max.degree</span> <span class='kw'>=</span> <span class='fl'>2L</span>, <span class='kw'>search</span> <span class='kw'>=</span> <span class='st'>"B&amp;B"</span>)
-<span class='no'>order</span> <span class='kw'>&lt;-</span> <span class='fu'>top_order</span>(<span class='no'>X</span>, <span class='kw'>method</span> <span class='kw'>=</span> <span class='st'>"HBU"</span>)</div></pre>
+
+<span class='fu'>top_order</span>(<span class='no'>X</span>, <span class='kw'>method</span> <span class='kw'>=</span> <span class='st'>"TD"</span>)</div><div class='output co'>#&gt; [1] 1 2 3 4 5</div><div class='input'>
+<span class='fu'>top_order</span>(<span class='no'>X</span>, <span class='kw'>method</span> <span class='kw'>=</span> <span class='st'>"BU"</span>)</div><div class='output co'>#&gt; [1] 1 2 3 4 5</div><div class='input'>
+<span class='fu'>top_order</span>(<span class='no'>X</span>, <span class='kw'>method</span> <span class='kw'>=</span> <span class='st'>"HTD"</span>, <span class='kw'>max.degree</span> <span class='kw'>=</span> <span class='fl'>2L</span>, <span class='kw'>search</span> <span class='kw'>=</span> <span class='st'>"B&amp;B"</span>)</div><div class='output co'>#&gt; [1] 1 2 3 4 5</div><div class='input'>
+<span class='fu'>top_order</span>(<span class='no'>X</span>, <span class='kw'>method</span> <span class='kw'>=</span> <span class='st'>"HBU"</span>)</div><div class='output co'>#&gt; [1] 1 3 4 2 5</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
@@ -199,6 +230,8 @@ and "HBU".</p></td>
       <li><a href="#value">Value</a></li>
 
       <li><a href="#details">Details</a></li>
+
+      <li><a href="#references">References</a></li>
 
       <li><a href="#see-also">See also</a></li>
       

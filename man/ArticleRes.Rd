@@ -4,7 +4,7 @@
 \name{ArticleRes}
 \alias{ArticleRes}
 \title{Data - Article results}
-\format{a data frame with 17 variables:
+\format{a data frame with 18 variables:
 \describe{
   \item{p}{number of parameters}
   \item{graph_setting}{Low dimensional sparse, dense or high dimensional A/B}

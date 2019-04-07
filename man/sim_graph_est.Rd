@@ -33,19 +33,19 @@ the data sets and their estimated topological orderings.}
 each column is an estimated topological ordering.}
 }
 \value{
+The \code{Kendall} function returnes one numeric value between -1 and 1.
+
 The \code{sim_graph_est} function returns a data frame with 18 variables and
-\code{ncol(scenarios)} x \code{ncol(top)} x \code{ncol(graph)}
-x m rows. The first 13 variables are simply the input parameters that
-generated that particular output row. The remaning 5 variables describe the
-preformance measures:
+\code{ncol(scenarios)} x \code{ncol(top)} x \code{ncol(graph)} x m rows. The
+first 14 variables are simply the input parameters that generated that
+particular output row. The remaning 5 variables describe the preformance
+measures:
 \itemize{
 \item \code{Kendall} Kendalls tau between the true and esimated topological ordering
 \item \code{Hamming} Structual Hamming Distance between true and estimated graph
 \item \code{Recall} percent of arrows true positive arrows in estimated graph
 \item \code{Flipped} percent of arrows flipped compared to true graph
 \item \code{FDR} percent of arrows false positivesin the estimateed graph
-
-The \code{Kendall} function returnes one numeric value between -1 and 1.
 }
 }
 \description{
@@ -68,9 +68,7 @@ ordering is calculated by \code{kendall} along with a few other preformance
 measures.
 }
 \examples{
-
 \dontrun{
-
 ####  The two low dimensional settings from the article
 
 scenarios <- expand.grid(p = c(5, 20, 40),
@@ -81,19 +79,16 @@ scenarios <- expand.grid(p = c(5, 20, 40),
                          n = c(100, 500, 1000),
                          sigma = 1,
                          stringsAsFactors = FALSE)
-                        
 top <- data.frame(method = c("TD", "BU"),
                   max.degree = NA,
                   search = NA,
                   M = NA,
                   stringsAsFactors = FALSE)
-                  
 graph <- data.frame(measure = "deviance",
                     which = "1se",
                     stringAsFactors = FALSE)
 
 SIM <- sim_graph_est(scenarios, top, graph, m = 500)                  
-
 
 
 
@@ -109,22 +104,17 @@ scenarios <- data.frame(p = rep(c( 40,  60,  80, 120, 160,
                          n = rep(rep(c(80, 100, 200), each = 5), 2),
                          sigma = 1,
                          stringsAsFactors = FALSE)
-                        
 top <- data.frame(method = c("HTD", "HBU"),
                   max.degree = c(3L, NA),
                   search = c("B&B", NA),
                   M = c(NA, 0.5),
                   stringsAsFactors = FALSE)
-                  
 graph <- data.frame(measure = NA,
                     which = NA,
                     stringAsFactors = FALSE)
 
 SIM <- sim_graph_est(scenarios, top, graph, m = 50)                  
 }
-
-
-
 }
 \seealso{
 Both \code{\link{sim_B}} and \code{\link{sim_X}} are used in the

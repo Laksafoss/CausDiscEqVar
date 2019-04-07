@@ -24,9 +24,6 @@ library(dplyr)
 ```
 
 
-
-# Low dimensional dense setting
-
 ```{r CreateSimData, cache = TRUE, include = FALSE}
 data("LowSim")
 data("HighSim")
@@ -52,86 +49,115 @@ ARTICLE <- ArticleRes %>%
 
 
 
-# Low dimensional dense setting
 
-
+# Low  -  Dense  -  Top Down
 ```{r, warning = FALSE, echo = FALSE}
 sim <- subset(SIM, 
               graph_setting == "dense" & l == 0.3 & 
-                measure == "deviance" & which == "1se" & 
-                PrefMeasure != "Hamming")
+                !is.na(measure) & PrefMeasure != "Hamming" & method == "TD")
 art <- subset(ARTICLE,
               graph_setting == "dense" & l == 0.3 &
-                measure == "BIC" & which == "min"& 
-                PrefMeasure != "Hamming")
+                PrefMeasure != "Hamming" & method == "TD")
+
+sim <- sim %>% mutate(
+  Measure = paste(measure, which, sep = " - ")
+)
 
 ggplot() + 
-    geom_boxplot(aes(x = n, y = Preformance, color = method), data = sim) + 
+    geom_boxplot(aes(x = n, y = Preformance, color = Measure),
+                 data = sim) + 
     facet_grid(p ~ PrefMeasure) + 
-    geom_point(aes(x = n, y = Preformance, shape = method), 
+    geom_point(aes(x = n, y = Preformance), 
                data = art, color = "black", 
-               position = position_dodge(0.8), size = 2) + 
-    ggtitle("Dense Setting  -  TD, BU  -  (1se) minimize deviance along lasso path") +
-    theme(axis.title.y = element_blank(), 
-          plot.title = element_text(hjust = 0.5))
+               position = position_dodge(0.8), size = 2) +
+    theme(axis.title.y = element_blank())
+```
+
+
+&nbsp;
+
+# Low  -  Dense  -  Bottom Up
+```{r, warning = FALSE, echo = FALSE}
+sim <- subset(SIM, 
+              graph_setting == "dense" & l == 0.3 & 
+                !is.na(measure) & PrefMeasure != "Hamming" & method == "BU")
+art <- subset(ARTICLE,
+              graph_setting == "dense" & l == 0.3 &
+                PrefMeasure != "Hamming" & method == "BU")
+
+sim <- sim %>% mutate(
+  Measure = paste(measure, which, sep = " - ")
+)
+
+ggplot() + 
+    geom_boxplot(aes(x = n, y = Preformance, color = Measure),
+                 data = sim) + 
+    facet_grid(p ~ PrefMeasure) + 
+    geom_point(aes(x = n, y = Preformance), 
+               data = art, color = "black", 
+               position = position_dodge(0.8), size = 2) +
+    theme(axis.title.y = element_blank())
 ```
 
 
 
+&nbsp;
 
-# Low dimensional sparse setting
-
-
+# Low  -  Sparse  -  Top Down
 ```{r, warning = FALSE, echo = FALSE}
 sim <- subset(SIM, 
               graph_setting == "sparse" & l == 0.3 & 
-                measure == "deviance" & which == "1se" &
-                PrefMeasure != "Hamming")
+                !is.na(measure) & PrefMeasure != "Hamming" & method == "TD")
 art <- subset(ARTICLE,
               graph_setting == "sparse" & l == 0.3 &
-                measure == "BIC" & which == "min" & 
-                PrefMeasure != "Hamming")
+                PrefMeasure != "Hamming" & method == "TD")
+
+sim <- sim %>% mutate(
+  Measure = paste(measure, which, sep = " - ")
+)
 
 ggplot() + 
-    geom_boxplot(aes(x = n, y = Preformance, color = method), data = sim) + 
+    geom_boxplot(aes(x = n, y = Preformance, color = Measure),
+                 data = sim) + 
     facet_grid(p ~ PrefMeasure) + 
-    geom_point(aes(x = n, y = Preformance, shape = method), 
-               data = art, color = "black",
-               position = position_dodge(0.8), size = 2) + 
-    ggtitle("Dense Setting  -  TD, BU  -  (1se) minimize deviance along lasso path") +
-    theme(axis.title.y = element_blank(), 
-          plot.title = element_text(hjust = 0.5))
+    geom_point(aes(x = n, y = Preformance), 
+               data = art, color = "black", 
+               position = position_dodge(0.8), size = 2) +
+    theme(axis.title.y = element_blank())
 ```
 
 
+
+&nbsp;
+
+# Low  -  Sparse  -  Bottom Up
 ```{r, warning = FALSE, echo = FALSE}
 sim <- subset(SIM, 
               graph_setting == "sparse" & l == 0.3 & 
-                measure == "BIC" & which == "min" &
-                PrefMeasure != "Hamming")
+                !is.na(measure) & PrefMeasure != "Hamming" & method == "BU")
 art <- subset(ARTICLE,
               graph_setting == "sparse" & l == 0.3 &
-                measure == "BIC" & which == "min" &
-                PrefMeasure != "Hamming")
+                PrefMeasure != "Hamming" & method == "BU")
+
+sim <- sim %>% mutate(
+  Measure = paste(measure, which, sep = " - ")
+)
 
 ggplot() + 
-    geom_boxplot(aes(x = n, y = Preformance, color = method), data = sim) + 
+    geom_boxplot(aes(x = n, y = Preformance, color = Measure),
+                 data = sim) + 
     facet_grid(p ~ PrefMeasure) + 
-    geom_point(aes(x = n, y = Preformance, shape = method), 
-               data = art, color ="black",
-               position = position_dodge(0.8), size = 2) + 
-    ggtitle("Dense Setting  -  TD, BU  -  minimize BIC score along lasso path") +
-    theme(axis.title.y = element_blank(), 
-          plot.title = element_text(hjust = 0.5))
+    geom_point(aes(x = n, y = Preformance), 
+               data = art, color = "black", 
+               position = position_dodge(0.8), size = 2) +
+    theme(axis.title.y = element_blank())
 ```
 
 
 
+&nbsp;
 
-
-# High dimensional setting
-
-
+# High  -  A & B  -  HTD & HBU
 ```{r, warning = FALSE, echo = FALSE}
 sim <- subset(SIM, graph_setting %in% c("A", "B") & 
                 PrefMeasure == "Kendall" & 
@@ -140,21 +166,16 @@ art <- subset(ARTICLE, graph_setting %in% c("A", "B") &
                 PrefMeasure == "Kendall"& 
                 n %in% c(80, 100) & ratio %in% c("0.5", "0.75", "1"))
 
-
 sim <- sim %>% mutate(
-  Method = ifelse(method == "HBU", 
-                  ifelse(M == 0.5, "HBU (0.5)", "HBU (2.0)"), 
-                  ifelse(search == "OMP", "HTD (OMP)", "HTD (B&B)"))
+  Method = factor(ifelse(method == "HBU", 
+                         paste0(method, " (M = ", M, ")"),
+                         paste0(method, " (search = ", search, ")")))
 )
 art <- art %>% mutate(
-  Method = ifelse(method == "HBU", "HBU (0.5)", "HTD (B&B)")
+  Method = factor(ifelse(method == "HBU", 
+                         paste0(method, " (M = ", M, ")"),
+                         paste0(method, " (search = ", search, ")")))
 )
-
-lev <- c("HTD (B&B)", "HTD (OMP)", "HBU (2.0)", "HBU (0.5)")
-sim$Method <- factor(sim$Method, levels = lev)
-art$Method <- factor(art$Method, levels = lev)
-
-
 
 ggplot() + 
     geom_boxplot(aes(x = n, y = (Preformance-50)/50, color = Method), 
@@ -162,10 +183,8 @@ ggplot() +
     facet_grid(ratio ~ graph_setting) + 
     geom_point(aes(x = n, y = (Preformance-50)/50, shape = Method), 
                data = art, color = "black",
-               position = position_dodge(1), size = 2) + 
-    ggtitle("High dimensional  -  HTD, HBU") +
-    theme(axis.title.y = element_blank(), 
-          plot.title = element_text(hjust = 0.5))
+               position = position_dodge(1), size = 2) +
+    theme(axis.title.y = element_blank())
 ```
 
 

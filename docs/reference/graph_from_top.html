@@ -64,7 +64,7 @@ estimate the causal graph itself." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">CausDiscEqVar</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.2</span>
       </span>
     </div>
 
@@ -137,7 +137,7 @@ estimate the causal graph itself.</p>
     </tr>
     <tr>
       <th>measure</th>
-      <td><p>Either "deviance", "mse", "mae", "AIC" or "BIC".</p></td>
+      <td><p>Either "mse", "mae"</p></td>
     </tr>
     <tr>
       <th>which</th>
@@ -154,7 +154,11 @@ estimate the causal graph itself.</p>
     
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
-    <p>LONG DESCRIPTION</p>
+    <p>To estimate the graph, the parents of each variable is fund via model 
+selection. As the underlying grap is assumed to be a DAG the parents of a 
+variable \(X_{(j)}\) must be found among the variables with a lower 
+ordering \((X_{(i)})_{i&lt;j}\).</p>
+<p>All model selection is done via cross-validation lasso.</p>
     
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 

@@ -20,7 +20,8 @@ correspons to the settings described in the article.}
 topological ordering}
 }
 \value{
-A matrix encoding a graph.
+Returns a matrix of size \code{p} times \code{p} encoding a graph 
+with regression coefficients.
 }
 \description{
 This is an internal simulation function. It creates a graph with regression 
@@ -36,6 +37,6 @@ to i.
 \examples{
 sim_B(5, "dense", 0.3, 1)
 
-sim_B(10, "A", 0.7, 1)
+sim_B(5, "sparse", 0.7, 1, uniqe_ordering = FALSE)
 
 }
