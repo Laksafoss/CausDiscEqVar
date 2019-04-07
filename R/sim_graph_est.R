@@ -161,7 +161,7 @@ sim_graph_est <- function(scenarios, top,
                   method = t["method"], 
                   max.degree = as.numeric(t["max.degree"]),
                   search = t["search"],
-                  M = t["M"])
+                  M = as.numeric(t["M"]))
       })
       
       toptop <- cbind(top, "Kendall" = kendall(order, top_est))
