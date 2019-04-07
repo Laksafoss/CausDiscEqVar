@@ -1,5 +1,5 @@
 ---
-title: "CausDiscEqVar <br>  - Examples of use and selected theory"
+title: "Simulation study"
 author: "Anna Damkjaer Laksafoss"
 date: "`r Sys.Date()`"
 output: 
@@ -20,6 +20,9 @@ knitr::opts_chunk$set(
   comment = "#>"
 )
 library(CausDiscEqVar)
+library(ggplot2)
+library(tidyr)
+library(dplyr)
 ```
 
 
@@ -67,38 +70,6 @@ Combining these results with the points above we are able to identify the topolo
 
 
 
-
-
-# Implementation in R
-
-We have implemented two basic algorithms `top_order` and `graph_from_top` which identifies the topologcial ordering given data and the graph given a topological ordering and data respectivly. 
-
-
-
-
-
-Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-
-
-## Estiamtion of topological ordering
-
-Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-
-
-## Estimation of graph given topological ordering
-
-Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-
-
-## Helper functions
-
-Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-
-
-
-
-
-
 # Simulation studies
 
 Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
@@ -110,9 +81,6 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor i
 data("LowSim")
 data("HighSim")
 data("ArticleRes")
-library(ggplot2)
-library(dplyr)
-library(tidyr)
 
 
 SIM <- rbind(LowSim, HighSim) %>%
@@ -140,15 +108,18 @@ ARTICLE <- ArticleRes %>%
 ```{r, warning = FALSE, echo = FALSE}
 sim <- subset(SIM, 
               graph_setting == "dense" & l == 0.3 & 
-                measure == "deviance" & which == "1se")
+                measure == "deviance" & which == "1se" & 
+                PrefMeasure != "Hamming")
 art <- subset(ARTICLE,
               graph_setting == "dense" & l == 0.3 &
-                measure == "BIC" & which == "min")
+                measure == "BIC" & which == "min"& 
+                PrefMeasure != "Hamming")
 
 ggplot() + 
     geom_boxplot(aes(x = n, y = Preformance, color = method), data = sim) + 
     facet_grid(p ~ PrefMeasure) + 
-    geom_point(aes(x = n, y = Preformance, color = method), data = art, 
+    geom_point(aes(x = n, y = Preformance, shape = method), 
+               data = art, color = "black", 
                position = position_dodge(0.8), size = 2) + 
     ggtitle("Dense Setting  -  TD, BU  -  (1se) minimize deviance along lasso path") +
     theme(axis.title.y = element_blank(), 
@@ -164,15 +135,18 @@ ggplot() +
 ```{r, warning = FALSE, echo = FALSE}
 sim <- subset(SIM, 
               graph_setting == "sparse" & l == 0.3 & 
-                measure == "deviance" & which == "1se")
+                measure == "deviance" & which == "1se" &
+                PrefMeasure != "Hamming")
 art <- subset(ARTICLE,
               graph_setting == "sparse" & l == 0.3 &
-                measure == "BIC" & which == "min")
+                measure == "BIC" & which == "min" & 
+                PrefMeasure != "Hamming")
 
 ggplot() + 
     geom_boxplot(aes(x = n, y = Preformance, color = method), data = sim) + 
     facet_grid(p ~ PrefMeasure) + 
-    geom_point(aes(x = n, y = Preformance, color = method), data = art, 
+    geom_point(aes(x = n, y = Preformance, shape = method), 
+               data = art, color = "black",
                position = position_dodge(0.8), size = 2) + 
     ggtitle("Dense Setting  -  TD, BU  -  (1se) minimize deviance along lasso path") +
     theme(axis.title.y = element_blank(), 
@@ -183,15 +157,18 @@ ggplot() +
 ```{r, warning = FALSE, echo = FALSE}
 sim <- subset(SIM, 
               graph_setting == "sparse" & l == 0.3 & 
-                measure == "BIC" & which == "min")
+                measure == "BIC" & which == "min" &
+                PrefMeasure != "Hamming")
 art <- subset(ARTICLE,
               graph_setting == "sparse" & l == 0.3 &
-                measure == "BIC" & which == "min")
+                measure == "BIC" & which == "min" &
+                PrefMeasure != "Hamming")
 
 ggplot() + 
     geom_boxplot(aes(x = n, y = Preformance, color = method), data = sim) + 
     facet_grid(p ~ PrefMeasure) + 
-    geom_point(aes(x = n, y = Preformance, color = method), data = art, 
+    geom_point(aes(x = n, y = Preformance, shape = method), 
+               data = art, color ="black",
                position = position_dodge(0.8), size = 2) + 
     ggtitle("Dense Setting  -  TD, BU  -  minimize BIC score along lasso path") +
     theme(axis.title.y = element_blank(), 
@@ -207,19 +184,35 @@ ggplot() +
 
 ```{r, warning = FALSE, echo = FALSE}
 sim <- subset(SIM, graph_setting %in% c("A", "B") & 
-                PrefMeasure == "Kendall")
+                PrefMeasure == "Kendall" & 
+                n %in% c(80, 100) & ratio %in% c("0.5", "0.75", "1"))
 art <- subset(ARTICLE, graph_setting %in% c("A", "B") & 
-                PrefMeasure == "Kendall")
+                PrefMeasure == "Kendall"& 
+                n %in% c(80, 100) & ratio %in% c("0.5", "0.75", "1"))
 
-summary(sim)
+
+sim <- sim %>% mutate(
+  Method = ifelse(method == "HBU", 
+                  ifelse(M == 0.5, "HBU (0.5)", "HBU (2.0)"), 
+                  ifelse(search == "OMP", "HTD (OMP)", "HTD (B&B)"))
+)
+art <- art %>% mutate(
+  Method = ifelse(method == "HBU", "HBU (0.5)", "HTD (B&B)")
+)
+
+lev <- c("HTD (B&B)", "HTD (OMP)", "HBU (2.0)", "HBU (0.5)")
+sim$Method <- factor(sim$Method, levels = lev)
+art$Method <- factor(art$Method, levels = lev)
+
+
 
 ggplot() + 
-    geom_boxplot(aes(x = n, y = (Preformance-50)/50, color = method), 
+    geom_boxplot(aes(x = n, y = (Preformance-50)/50, color = Method), 
                  data = sim) + 
-    facet_grid(ratio ~ search + graph_setting) + 
-    geom_point(aes(x = n, y = (Preformance-50)/50, color = method), 
-               data = art, 
-               position = position_dodge(0.8), size = 2) + 
+    facet_grid(ratio ~ graph_setting) + 
+    geom_point(aes(x = n, y = (Preformance-50)/50, shape = Method), 
+               data = art, color = "black",
+               position = position_dodge(1), size = 2) + 
     ggtitle("High dimensional  -  HTD, HBU") +
     theme(axis.title.y = element_blank(), 
           plot.title = element_text(hjust = 0.5))

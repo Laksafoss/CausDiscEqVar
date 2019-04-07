@@ -2,17 +2,38 @@
 #' Find the Topological Ordering of parameters
 #' 
 #' Find the Topological Ordering of parameters, which are assumed to come from 
-#' a linear SEM (also known as SCM) with equal error variance.
+#' a linear SEM (also known as SCM) where it is assumed that the independent 
+#' noise terms have equal error variance.
 #' 
 #' MORE DETAILED DECSRIPTION
 #' 
-#' @param X a matrix containing the oberved variables.
-#' @param method the estimation method. Posible choises are TD, BU, HTD
-#' @param ... terms passed to the method specific estimation steps. If the 
-#'   method TD is specified it is posible to specify a \code{max.degree}. 
+#' @param X A matrix containing the oberved variables.
+#' @param method The estimation method. Posible choises are "TD", "BU", "HTD"
+#'   and "HBU".
+#' @param ... Terms passed to the method specific estimation steps.
+#' 
+#'   If the method "HBU" is specified it is possible to specify a tuning 
+#'   parameter \code{M} to be used in the organic lasso.
+#' 
+#'   If the method "HTD" is specified it is posible to specify a 
+#'   \code{max.degree} and a \code{search}. The \code{max.degree} specifies the 
+#'   assumed maximal in-degree in the true causal graph. The parameter 
+#'   \code{search} may be set to either "full", "B&B" or "OMP" indicating how 
+#'   the algorithem should search for \code{max.degree} number of parameters to 
+#'   produce the lowest conditional variance.
 #'   
-#' @return a vector of length equal to the number of parameters indicating the 
-#'   estimated topological ordering
+#'   The "full" search method simply looks at all possible subsets of the 
+#'   current ansestreal set of size \code{max.degree}, the "B&B" method searches
+#'   via a bound and branch method, and lastly "OMP" uses orthogonal matching 
+#'   pursuit (fprward selection) to find \code{max.degree} variables from the 
+#'   ansestreal set. 
+#'   
+#' @return A vector of length equal to the number of parameters indicating the 
+#'   estimated topological ordering is returned.
+#'   
+#' @seealso The wrapper function \code{\link{graph_est}}combines \code{top_order} 
+#'   and the model selection function \code{\link{graph_from_top}} into one 
+#'   function that estimates the causal graph from the data. 
 #' 
 #' @examples 
 #' n <- 1000
@@ -29,7 +50,8 @@
 #' }
 #' order <- top_order(X, method = "TD")
 #' order <- top_order(X, method = "BU")
-#' order <- top_order(X, method = "HTD")
+#' order <- top_order(X, method = "HTD", max.degree = 2L, search = "B&B")
+#' order <- top_order(X, method = "HBU")
 #' 
 #' 
 #' @export
@@ -74,13 +96,13 @@ est_step.BU <- function(vars, theta, j, ...) {
   return(solve(vars$cov[set,set])[ind,ind])
 }
 
-est_step.HBU <- function(vars, theta, j, ...) {
+est_step.HBU <- function(vars, theta, j, M = 0.5, ...) {
   index <- setdiff(seq_len(ncol(vars$X)), c(theta, j))
   if (length(index) == 1) {
     vars$X <- cbind(vars$X, 1)
     index <- c(index, ncol(vars$X))
   }
-  lambda <- 0.5 * sqrt(log(ncol(vars$X)) / nrow(vars$X))
+  lambda <- M * sqrt(log(ncol(vars$X)) / nrow(vars$X))
   fit <- natural::olasso_path(vars$X[,index, drop = FALSE], 
                               vars$X[,j], 
                               lambda = c(lambda, lambda * 1.1),

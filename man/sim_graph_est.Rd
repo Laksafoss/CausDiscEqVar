@@ -2,40 +2,153 @@
 % Please edit documentation in R/sim_graph_est.R
 \name{sim_graph_est}
 \alias{sim_graph_est}
+\alias{kendall}
 \alias{sim_B}
 \alias{sim_X}
-\alias{standard_senarios}
-\alias{plot_sim_analysis}
-\alias{make_table}
 \title{Simulation tool for graph_est}
 \usage{
-sim_graph_est(scenarios, m)
+sim_graph_est(scenarios, top, graph = data.frame(measure = NA, which =
+  NA), m)
 
-sim_B(p, graph_setting, l, u)
+kendall(true, est)
+
+sim_B(p, graph_setting, l, u, unique_ordering = TRUE)
 
 sim_X(B, n, sigma, alpha = rep(1, ncol(B)))
-
-standard_senarios(setting)
-
-plot_sim_analysis(data)
-
-make_table(data)
 }
 \arguments{
-\item{m}{the number of simulations of each senario}
+\item{scenarios}{a data frame with columns \code{p}, \code{graph_setting},
+\code{l}, \code{u}, \code{unique_ordering}, \code{n} and \code{sigma}.
+These variables are then used in the functions \code{\link{sim_B}} and
+\code{\link{sim_X}} to simulate a deteset for each row in \code{scenarios}.}
 
-\item{senarios}{a data frame or matrix}
+\item{top}{a data frame with columns \code{method}, \code{max.degree},
+\code{search} and \code{M}. These variables are used in the function
+\code{\link{top_order}} along with the data sets simulated based on
+\code{scenarios}.}
+
+\item{graph}{a data frame with columns \code{measure} and \code{which}. These
+variables are used in the function \code{\link{graph_from_top}} along with
+the data sets and their estimated topological orderings.}
+
+\item{m}{the number of realizations of each \code{scenario}.}
+
+\item{true}{the true topological ordering of the graph}
+
+\item{est}{one or more estimated topological orderings in a matrix, where
+each column is an estimated topological ordering.}
+
+\item{p}{number of variables to simulate}
+
+\item{graph_setting}{either "dense", "sparse", "A", or "B". These settings
+correspons to the settings described in the article.}
+
+\item{l}{lower bound for direct abolute causal effect}
+
+\item{u}{upper bound for direct absolute causal effect}
+
+\item{unique_ordering}{if \code{TRUE} the simulated graph will have a unique
+topological ordering}
+
+\item{B}{a causal graph}
+
+\item{n}{number of observations from the graph}
+
+\item{sigma}{the common standard error}
+
+\item{alpha}{a vector of length equal to the number of parameters given by
+\code{B}. These \code{alpha}s are multiplied to the common \code{sigma}.}
 }
 \value{
-WHAT IT RETURNS
+The \code{sim_graph_est} function returns a data frame with 18 variables and
+\code{ncol(scenarios)} x \code{ncol(top)} x \code{ncol(graph)}
+x m rows. The first 13 variables are simply the input parameters that
+generated that particular output row. The remaning 5 variables describe the
+preformance measures:
+\itemize{
+\item \code{Kendall} Kendalls tau btween the true and esimated topological ordering
+\item \code{Hamming} Structual Hamming Distance between true and estimated graph
+\item \code{Recall} percent of arrows true positive arrows in estimated graph
+\item \code{Flipped} percent of arrows flipped compared to true graph
+\item \code{FDR} percent of arrows false positivesin the estimateed graph
+}
 }
 \description{
-This is an internal simulation function for testing preformance of the 
-\code{\link{graph_est}} function.
+This is an internal simulation function for testing preformance of the
+\code{\link{top_order}} and \code{\link{graph_from_top}} function.
 }
 \details{
-LONG DESCRIPTION
+These 4 functions are used to simulated and evaluate set simulated data. The
+\code{sim_B} function simulates a causal graph with regression coefficients,
+and the \code{sim_X} function simulates data from some causal graph with
+regression coefficient.
+
+\code{kendall} is a function that finds the \emph{Kendall's Tau coefficient} and
+is used to evaluate the preformance of the estimated topological orderings
+found by \code{\link{top_order}}. This coefficient is however only meaningfull
+when the true ordering is unique.
+
+In the function \code{sim_graph_est} all three of these functions are use.
+The \code{sim_B} and \code{sim_X} simulate the needed data and the
+\code{kendall} and som internal code then evaluates the different estimated
+topological orderings and graphs.
 }
 \examples{
+
+\dontrun{
+
+####  The two low dimensional settings from the article
+
+scenarios <- expand.grid(p = c(5, 20, 40),
+                         graph_setting = c("dense", "sparse"),
+                         l = 0.3,
+                         u = 1,
+                         unique_ordering = TRUE,
+                         n = c(100, 500, 1000),
+                         sigma = 1,
+                         stringsAsFactors = FALSE)
+                        
+top <- data.frame(method = c("TD", "BU"),
+                  max.degree = NA,
+                  search = NA,
+                  M = NA,
+                  stringsAsFactors = FALSE)
+                  
+graph <- data.frame(measure = "deviance",
+                    which = "1se",
+                    stringAsFactors = FALSE)
+
+SIM <- sim_graph_est(scenarios, top, graph, m = 500)                  
+
+
+
+
+####  The two high dimensional settings from the article
+
+scenarios <- data.frame(p = rep(c( 40,  60,  80, 120, 160,
+                                   50,  75, 100, 150, 200,
+                                  100, 150, 200, 300, 400), 2),
+                         graph_setting = rep(c("A", "B"), each = 15),
+                         l = 0.7,
+                         u = 1,
+                         unique_ordering = TRUE,
+                         n = rep(rep(c(80, 100, 200), each = 5), 2),
+                         sigma = 1,
+                         stringsAsFactors = FALSE)
+                        
+top <- data.frame(method = c("HTD", "HBU"),
+                  max.degree = c(3L, NA),
+                  search = c("B&B", NA),
+                  M = c(NA, 0.5),
+                  stringsAsFactors = FALSE)
+                  
+graph <- data.frame(measure = NA,
+                    which = NA,
+                    stringAsFactors = FALSE)
+
+SIM <- sim_graph_est(scenarios, top, graph, m = 50)                  
+}
+
+
 
 }

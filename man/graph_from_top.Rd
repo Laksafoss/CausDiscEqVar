@@ -7,15 +7,23 @@
 graph_from_top(X, top, measure = "deviance", which = "1se")
 }
 \arguments{
-\item{X}{a matrix containing the observed variables}
+\item{X}{A matrix containing the observed variables}
 
-\item{top}{a topological ordering of the variables}
+\item{top}{A topological ordering of the variables}
+
+\item{measure}{Either "deviance", "mse", "mae", "AIC" or "BIC".}
+
+\item{which}{Either "min" or "1se"}
 }
 \value{
-the B graph estimated from the data
+the coefficient graph estimated from the data. This is a graph which 
+  has values different from zero iff there is an arrow in the estimated 
+  causal graph. The values of the non-zero entries in this matrix are the 
+  estimated (causal) effects.
 }
 \description{
-SHORT DESCRIPTION
+Given data and a topological ordering of the causal graph this function will
+estimate the causal graph itself.
 }
 \details{
 LONG DESCRIPTION
@@ -37,4 +45,10 @@ for (i in 1:4) {
 top <- c(1,2,3,4) # from B we know this to be the true ordering
 graph_from_top(X, top)
 
+}
+\seealso{
+The wrapper function \code{\link{graph_est}} combines the function
+  \code{\link{top_order}}, which estimates the topological ordering of the 
+  causal graph from data, and \code{graph_from_top} into one function that 
+  estimates the causal graph from the data.
 }

@@ -3,7 +3,7 @@
 #' 
 #' A dataset containing the reported results from the article.
 #' 
-#' @format a data frame with 8 variables:
+#' @format a data frame with 17 variables:
 #' \describe{
 #'   \item{p}{number of parameters}
 #'   \item{graph_setting}{Low dimensional sparse, dense or high dimensional A/B}
@@ -17,6 +17,7 @@
 #'   \item{method}{"TD", "BU", "HTD", "HBU"}
 #'   \item{max.degree}{HTD parameter}
 #'   \item{search}{"full", "B&B" or "OMP"}
+#'   \item{M}{Tuning parameter in organic lasso}
 #'   \item{Kendall}{Kendalls tau btween the true and esimated topological ordering}
 #'   \item{Hamming}{Structual Hamming Distance between true and estimated graph}
 #'   \item{Recall}{percent of arrows true positive arrows in estimated graph}
@@ -42,16 +43,17 @@
 #   method = c(rep(rep(c("TD", "BU"), each = 9),4),
 #              rep(rep(c("HTD", "HBU"), each = 15),2)),
 #   max.degree = c(rep(NA, 72),rep(3,60)),
-#   search = c(rep(NA, 72), rep("B&B", 60)),
+#   search = c(rep(NA, 72), rep(rep(c("B&B", NA), each = 15),2)),
+#   M = c(rep(NA, 72), rep(rep(c(NA, 0.5), each = 15),2)),
 #   Kendall = c(0.85, 0.98, 0.99, 0.92, 0.99, 1.00, 0.96, 0.99, 1.00,
 #               0.82, 0.97, 0.98, 0.85, 0.97, 0.99, 0.91, 0.98, 0.99,
 #               0.87, 0.98, 0.99, 0.77, 0.96, 0.99, 0.72, 0.96, 0.99,
 #               0.84, 0.96, 0.98, 0.59, 0.88, 0.94, 0.44, 0.80, 0.91,
 #               rep(NA, 36),
-#               0.99, 0.98, 0.95, 0.84, 0.72, 
+#               0.99, 0.98, 0.95, 0.84, 0.72,
 #               1.00, 0.99, 0.97, 0.86, 0.73,
 #               1.00, 1.00, 0.99, 0.87, 0.74,
-#               0.89, 0.89, 0.87, 0.83, 0.73, 
+#               0.89, 0.89, 0.87, 0.83, 0.73,
 #               0.93, 0.92, 0.87, 0.84, 0.78,
 #               0.95, 0.90, 0.79, 0.74, 0.64,
 #               1.00, 0.99, 0.95, 0.77, 0.55,
@@ -60,7 +62,7 @@
 #               0.70, 0.52, 0.39, 0.25, 0.16,
 #               0.70, 0.50, 0.38, 0.26, 0.12,
 #               0.77, 0.61, 0.48, 0.20, 0.13),
-#   Hamming = c(rep(NA, 36), 
+#   Hamming = c(rep(NA, 36),
 #               1.3, 0.7, 0.5, 31, 22, 28, 170, 152, 136,
 #               1.3, 0.7, 0.5, 32, 22, 28, 174, 155, 137,
 #               1.6, 0.8, 0.6, 7, 3.5, 2.2, 14, 7, 5,
@@ -79,23 +81,23 @@
 #               9, 1, 1, 5,  1, 0, 3,  1, 0,
 #               6, 1, 1, 9,  2, 0, 10, 2, 1,
 #               7, 2, 1, 13, 4, 2, 16, 5, 2,
-#               7, 4, 3, 4,  2, 2,  2, 2, 1, 
+#               7, 4, 3, 4,  2, 2,  2, 2, 1,
 #               7, 4, 3, 3,  3, 2,  3, 2, 1,
-#               8, 3, 3, 4,  4, 3,  3, 3, 3, 
+#               8, 3, 3, 4,  4, 3,  3, 3, 3,
 #               8, 4, 4, 4,  4, 2,  4, 3, 3,
 #               rep(NA, 60)),
 #   FDR = c(17, 4, 3, 32, 28, 26, 41, 41, 40,
 #           18, 4, 3, 35, 29, 26, 43, 42, 41,
 #           16, 5, 3, 35, 19, 14, 38, 24, 17,
 #           17, 5, 4, 40, 22, 16, 46, 31, 22,
-#           16, 8, 5, 27, 24, 21, 36, 38, 36, 
+#           16, 8, 5, 27, 24, 21, 36, 38, 36,
 #           15, 7, 5, 28, 24, 21, 37, 39, 36,
 #           18, 7, 6, 16,  9,  5, 16,  8,  6,
-#           18, 7, 6, 17,  8,  5, 18,  7,  6,  
+#           18, 7, 6, 17,  8,  5, 18,  7,  6,
 #           rep(NA,60))
 # )
 # 
-# usethis::use_data(ArticleRes, ArticleRes)
+# usethis::use_data(ArticleRes, ArticleRes, overwrite = TRUE)
 
 
 
@@ -119,6 +121,7 @@
 #'   \item{method}{"TD", "BU", "HTD", "HBU"}
 #'   \item{max.degree}{HTD parameter}
 #'   \item{search}{"full", "B&B" or "OMP"}
+#'   \item{M}{Tuning parameter in organic lasso}
 #'   \item{Kendall}{Kendalls tau btween the true and esimated topological ordering}
 #'   \item{Hamming}{Structual Hamming Distance between true and estimated graph}
 #'   \item{Recall}{percent of arrows true positive arrows in estimated graph}
@@ -127,26 +130,6 @@
 #' } 
 #' 
 "LowSim"
-
-# scen <- expand.grid(p = c(5,20,40),
-#                     graph_setting = c("sparse","dense"),
-#                     l = c(0.1, 0.3),
-#                     u = 1,
-#                     unique_ordering = c(TRUE),
-#                     n = c(100,500,1000),
-#                     sigma = 1,
-#                     stringsAsFactors = FALSE)
-# top <- expand.grid(method = c("TD", "BU"),
-#                    max.degree = NA,
-#                    search = NA,
-#                    stringsAsFactors = FALSE)
-# graph <- expand.grid(measure = c("mse", "deviance", "BIC"),
-#                      which = c("min", "1se"),
-#                      stringsAsFactors = FALSE)
-# t <- Sys.time()
-# set.seed(19375)
-# LowSim <- sim_graph_est(scen, top, graph, 3)
-# (t <- Sys.time() - t)
 
 
 #usethis::use_data(LowSim, LowSim, overwrite = TRUE)
@@ -174,6 +157,7 @@
 #'   \item{method}{"TD", "BU", "HTD", "HBU"}
 #'   \item{max.degree}{HTD parameter}
 #'   \item{search}{"full", "B&B" or "OMP"}
+#'   \item{M}{Tuning parameter in organic lasso}
 #'   \item{Kendall}{Kendalls tau btween the true and esimated topological ordering}
 #'   \item{Hamming}{Structual Hamming Distance between true and estimated graph}
 #'   \item{Recall}{percent of arrows true positive arrows in estimated graph}
@@ -183,37 +167,5 @@
 #' 
 "HighSim"
 
-# scen <- data.frame(p = rep(c(40, 60, 80,
-#                              50, 75, 100),2),
-#                    graph_setting = rep(c("A", "B"), each = 6),
-#                    l = 0.7,
-#                    u = 1,
-#                    unique_ordering = TRUE,
-#                    n = rep(rep(c(80,100), each = 5),2),
-#                    sigma = 1,
-#                    stringsAsFactors = FALSE)
-# 
-# top <- data.frame(method = c("HTD", "HTD", "HBU"),
-#                    max.degree = 3L,
-#                    search = c("B&B", "OMP", NA),
-#                    stringsAsFactors = FALSE)
-# 
-# t <- Sys.time()
-# set.seed(7402)
-# HighSim1 <- sim_graph_est(scen, top, m = 2)
-# (t <- Sys.time() - t)
-# 
-# t <- Sys.time()
-# set.seed(56230)
-# HighSim2 <- sim_graph_est(scen, top, m = 2)
-# (t <- Sys.time() - t)
-# 
-# t <- Sys.time()
-# set.seed(986423)
-# HighSim2 <- sim_graph_est(scen, top, m = 2)
-# (t <- Sys.time() - t)
-
-
-
-#usethis::use_data(HighSim, HighSim)
+#usethis::use_data(HighSim, HighSim, overwrite = TRUE)
 

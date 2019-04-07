@@ -7,19 +7,72 @@
 graph_est(X, method = "TD", measure = "deviance", which = "1se", ...)
 }
 \arguments{
-\item{X}{a matrix or data frame containing the observed variables.}
+\item{X}{A matrix containing the observed variables}
 
-\item{method}{the estimation method. Posible choises are TD, BU, HTD}
+\item{method}{The estimation method. Posible choises are "TD", "BU", "HTD"
+and "HBU".}
 
-\item{...}{terms passed to the method specific estimations steps.}
+\item{measure}{Either "deviance", "mse", "mae", "AIC" or "BIC".}
+
+\item{which}{Either "min" or "1se"}
+
+\item{...}{Terms passed to the method specific estimation steps.
+
+  If the method "HBU" is specified it is possible to specify a tuning 
+  parameter \code{M} to be used in the organic lasso.
+
+  If the method "HTD" is specified it is posible to specify a 
+  \code{max.degree} and a \code{search}. The \code{max.degree} specifies the 
+  assumed maximal in-degree in the true causal graph. The parameter 
+  \code{search} may be set to either "full", "B&B" or "OMP" indicating how 
+  the algorithem should search for \code{max.degree} number of parameters to 
+  produce the lowest conditional variance.
+  
+  The "full" search method simply looks at all possible subsets of the 
+  current ansestreal set of size \code{max.degree}, the "B&B" method searches
+  via a bound and branch method, and lastly "OMP" uses orthogonal matching 
+  pursuit (fprward selection) to find \code{max.degree} variables from the 
+  ansestreal set.}
 }
 \value{
-WHAT IS RETURNED
+The \code{graph_est} function returns a vector \code{top_order} 
+  with the estimated topological ordering of the causal graph, a matrix 
+  \code{G} of the estimated causal graph, and lastly a matrix \code{B} of the 
+  estimated regression matrix.
 }
 \description{
 Estimates the graph of a linear SEM with assumed equal variance of the noise 
 terms.
 }
 \details{
-LONG DESCRIPTION
+\code{graph_est} is a simple wrapper function which given data will fist 
+estimate the topological ordering of the causal graph using the function 
+\code{\link{top_order}}, and then estimate the causal graph itself using the 
+function \code{\link{graph_from_top}}.
+}
+\examples{
+
+# we create some data from the graph B
+n <- 1000
+B <- matrix(c(0,1,0,1,
+              0,0,2,0,
+              0,0,0,1,
+              0,0,0,0), ncol = 4, nrow = 4, byrow = TRUE)
+X <- matrix(0, ncol = 4, nrow = n)
+for (i in 1:4) {
+  X[ ,i] <- X \%*\% B[ ,i] + rnorm(n)
+}
+
+# from the simulated data we etimate in two different way to illustrate
+graph_est(X, method = "TD", measure = "deviance", which = "1se")
+graph_est(X, method = "HTD", 
+          measure = "deviance", which = "1se", 
+          max.degree = 2L, search = "full")
+
+}
+\seealso{
+\code{graph_est} is simply a wrapper functio for the two functions
+  \code{\link{top_order}} and \code{\link{graph_from_top}} which givem data 
+  will estimate the topological ordering of the causal graph and estimates 
+  the causal graph itself given an ordering respectivly.
 }

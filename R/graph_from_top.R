@@ -1,14 +1,25 @@
 
 #' Find graph from topological ordering
 #' 
-#' SHORT DESCRIPTION
+#' Given data and a topological ordering of the causal graph this function will
+#' estimate the causal graph itself. 
 #' 
 #' LONG DESCRIPTION
 #' 
-#' @param  X a matrix containing the observed variables
-#' @param top a topological ordering of the variables
+#' @param X A matrix containing the observed variables
+#' @param top A topological ordering of the variables
+#' @param measure Either "deviance", "mse", "mae", "AIC" or "BIC".
+#' @param which Either "min" or "1se"
 #' 
-#' @return the B graph estimated from the data
+#' @return the coefficient graph estimated from the data. This is a graph which 
+#'   has values different from zero iff there is an arrow in the estimated 
+#'   causal graph. The values of the non-zero entries in this matrix are the 
+#'   estimated (causal) effects.
+#' 
+#' @seealso The wrapper function \code{\link{graph_est}} combines the function
+#'   \code{\link{top_order}}, which estimates the topological ordering of the 
+#'   causal graph from data, and \code{graph_from_top} into one function that 
+#'   estimates the causal graph from the data. 
 #' 
 #' @examples 
 #' 

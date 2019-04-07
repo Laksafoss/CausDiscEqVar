@@ -3,13 +3,23 @@
 #' Estimates the graph of a linear SEM with assumed equal variance of the noise 
 #' terms. 
 #' 
-#' LONG DESCRIPTION
+#' \code{graph_est} is a simple wrapper function which given data will fist 
+#' estimate the topological ordering of the causal graph using the function 
+#' \code{\link{top_order}}, and then estimate the causal graph itself using the 
+#' function \code{\link{graph_from_top}}. 
 #' 
-#' @param X a matrix or data frame containing the observed variables.
-#' @param method the estimation method. Posible choises are TD, BU, HTD
-#' @param ... terms passed to the method specific estimations steps.
+#' @inheritParams graph_from_top
+#' @inheritParams top_order
 #' 
-#' @return WHAT IS RETURNED 
+#' @return The \code{graph_est} function returns a vector \code{top_order} 
+#'   with the estimated topological ordering of the causal graph, a matrix 
+#'   \code{G} of the estimated causal graph, and lastly a matrix \code{B} of the 
+#'   estimated regression matrix. 
+#' 
+#' @seealso \code{graph_est} is simply a wrapper functio for the two functions
+#'   \code{\link{top_order}} and \code{\link{graph_from_top}} which givem data 
+#'   will estimate the topological ordering of the causal graph and estimates 
+#'   the causal graph itself given an ordering respectivly.
 #' 
 #' @examples 
 #' 
@@ -24,8 +34,11 @@
 #'   X[ ,i] <- X %*% B[ ,i] + rnorm(n)
 #' }
 #' 
-#' # from the simulated data we etimate 
-#' graph_est(X, method = "TD)
+#' # from the simulated data we etimate in two different way to illustrate
+#' graph_est(X, method = "TD", measure = "deviance", which = "1se")
+#' graph_est(X, method = "HTD", 
+#'           measure = "deviance", which = "1se", 
+#'           max.degree = 2L, search = "full")
 #' 
 #' @export
 
