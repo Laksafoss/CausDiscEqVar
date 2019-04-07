@@ -156,6 +156,34 @@ equal to <code>n</code>.</p>
 coefficients. The graph must be encoded as an upper triangular matrix.</p>
     
 
+    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
+    <pre class="examples"><div class='input'>(<span class='no'>B</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/matrix'>matrix</a></span>(<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='fl'>0</span>,<span class='fl'>0</span>,<span class='fl'>0</span>,<span class='fl'>1</span>,<span class='fl'>0</span>,<span class='fl'>0</span>,<span class='fl'>1</span>,<span class='fl'>1</span>,<span class='fl'>0</span>), <span class='kw'>ncol</span> <span class='kw'>=</span> <span class='fl'>3</span>))</div><div class='output co'>#&gt;      [,1] [,2] [,3]
+#&gt; [1,]    0    1    1
+#&gt; [2,]    0    0    1
+#&gt; [3,]    0    0    0</div><div class='input'>
+<span class='fu'>sim_X</span>(<span class='no'>B</span>, <span class='fl'>10</span>, <span class='fl'>1</span>)</div><div class='output co'>#&gt;              [,1]       [,2]       [,3]
+#&gt;  [1,] -0.55872582  0.6994304  1.0680653
+#&gt;  [2,] -1.39598601 -1.5372647 -2.4732923
+#&gt;  [3,] -1.36914864 -2.1249868 -1.8153382
+#&gt;  [4,]  0.82648974  4.0016095  5.7216303
+#&gt;  [5,] -0.49950853  0.7919735 -0.4439690
+#&gt;  [6,] -1.93412686 -1.5239191 -4.4655465
+#&gt;  [7,] -2.02669182 -0.9176423 -2.9052178
+#&gt;  [8,]  0.01352579  0.7840376  0.2429863
+#&gt;  [9,] -0.56260480 -1.4461271 -1.2742915
+#&gt; [10,]  0.69029351  1.0810565  0.1175527</div><div class='input'>
+<span class='fu'>sim_X</span>(<span class='no'>B</span>, <span class='fl'>10</span>, <span class='fl'>1</span>, <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='fl'>1</span>, <span class='fl'>5</span>, <span class='fl'>10</span>))</div><div class='output co'>#&gt;             [,1]      [,2]       [,3]
+#&gt;  [1,] -0.4487055 -8.701124  -8.843050
+#&gt;  [2,]  1.5901592 -4.909776  -4.170367
+#&gt;  [3,] -0.3354367  5.972825  10.588898
+#&gt;  [4,]  1.6535075 -2.281024 -26.982157
+#&gt;  [5,]  0.6250739  8.016664  11.637409
+#&gt;  [6,] -0.8832099 -3.980372  -4.650104
+#&gt;  [7,]  0.5860456  6.946410   8.382256
+#&gt;  [8,] -0.3515753 -2.447098 -13.447637
+#&gt;  [9,] -1.5872343 -5.004272 -13.815413
+#&gt; [10,]  1.2179636  3.332936   5.148892</div><div class='input'>
+</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
@@ -165,7 +193,9 @@ coefficients. The graph must be encoded as an upper triangular matrix.</p>
       <li><a href="#value">Value</a></li>
 
       <li><a href="#details">Details</a></li>
-          </ul>
+      
+      <li><a href="#examples">Examples</a></li>
+    </ul>
 
   </div>
 </div>

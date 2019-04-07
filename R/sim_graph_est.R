@@ -310,7 +310,7 @@ sim_B <- function(p, graph_setting, l, u, unique_ordering = TRUE) {
 #' \code{B} with columns equal to the number of columns in \code{B} and rows 
 #' equal to \code{n}.
 #' 
-#' @example 
+#' @examples 
 #' (B <- matrix(c(0,0,0,1,0,0,1,1,0), ncol = 3))
 #' 
 #' sim_X(B, 10, 1)

@@ -1,7 +1,5 @@
 ---
 title: "Theory"
-author: "Anna Damkjaer Laksafoss"
-date: "`r Sys.Date()`"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{CausDiscEqVar}
@@ -52,7 +50,7 @@ Combining these results with the points above we are able to identify the topolo
 
 
 
-# References {#Ref}
+## References {#Ref}
 
 Chen, W., Drton, M. \& Wang, Y. S. (2018). On Causal Discovery with Equal Variance Assumption. *arXiv preprint arXiv:1807.03419*. 
 

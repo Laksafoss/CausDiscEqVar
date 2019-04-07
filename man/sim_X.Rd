@@ -28,3 +28,11 @@ This is an internal simulation function for simulating data from a graph.
 The \code{sim_B} function simulates a causal graph with regression 
 coefficients. The graph must be encoded as an upper triangular matrix.
 }
+\examples{
+(B <- matrix(c(0,0,0,1,0,0,1,1,0), ncol = 3))
+
+sim_X(B, 10, 1)
+
+sim_X(B, 10, 1, c(1, 5, 10))
+
+}
