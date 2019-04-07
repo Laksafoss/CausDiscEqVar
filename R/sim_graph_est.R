@@ -3,20 +3,19 @@
 #' This is an internal simulation function for testing preformance of the 
 #' \code{\link{top_order}} and \code{\link{graph_from_top}} function. 
 #' 
-#' These 4 functions are used to simulated and evaluate set simulated data. The 
-#' \code{sim_B} function simulates a causal graph with regression coefficients, 
-#' and the \code{sim_X} function simulates data from some causal graph with 
-#' regression coefficient. 
+#' The \code{sim_graph_est} function is used to simulate and evaluate the 
+#' simulated data. The \code{kendall} is a function that finds the *Kendall's* 
+#' *Tau coefficient* between two topological orderings and is used to evaluate 
+#' the preformance of the estimated topological orderings found by 
+#' \code{\link{top_order}} in the internal of \code{graph_from_top}. This 
+#' coefficient is however only meaningfull when the true ordering is unique.  
 #' 
-#' \code{kendall} is a function that finds the *Kendall's Tau coefficient* and 
-#' is used to evaluate the preformance of the estimated topological orderings 
-#' found by \code{\link{top_order}}. This coefficient is however only meaningfull
-#' when the true ordering is unique.  
-#' 
-#' In the function \code{sim_graph_est} all three of these functions are use. 
-#' The \code{sim_B} and \code{sim_X} simulate the needed data and the 
-#' \code{kendall} and som internal code then evaluates the different estimated 
-#' topological orderings and graphs. 
+#' In the function \code{sim_graph_est} the three functions \code{kendall}, 
+#' \code{\link{sim_B}} and \code{\link{sim_X}} are use. The functions 
+#' \code{\link{sim_B}} and \code{\link{sim_X}} simulate the needed data and then
+#' the kendall's tau coefficient between the estimated and true topological 
+#' ordering is calculated by \code{kendall} along with a few other preformance
+#' measures.
 #' 
 #' @param scenarios a data frame with columns \code{p}, \code{graph_setting}, 
 #'   \code{l}, \code{u}, \code{unique_ordering}, \code{n} and \code{sigma}. 
@@ -33,32 +32,24 @@
 #' @param true the true topological ordering of the graph
 #' @param est one or more estimated topological orderings in a matrix, where 
 #'   each column is an estimated topological ordering.
-#' @param p number of variables to simulate
-#' @param graph_setting either "dense", "sparse", "A", or "B". These settings 
-#'   correspons to the settings described in the article.
-#' @param l lower bound for direct abolute causal effect
-#' @param u upper bound for direct absolute causal effect
-#' @param unique_ordering if \code{TRUE} the simulated graph will have a unique 
-#'   topological ordering
-#' @param B a causal graph 
-#' @param n number of observations from the graph
-#' @param sigma the common standard error
-#' @param alpha a vector of length equal to the number of parameters given by 
-#'   \code{B}. These \code{alpha}s are multiplied to the common \code{sigma}.
 #' 
-#' @return The \code{sim_graph_est} function returns a data frame with 18 variables and 
+#' @return 
+#'   The \code{sim_graph_est} function returns a data frame with 18 variables and 
 #'   \code{ncol(scenarios)} x \code{ncol(top)} x \code{ncol(graph)} 
 #'   x m rows. The first 13 variables are simply the input parameters that 
 #'   generated that particular output row. The remaning 5 variables describe the 
 #'   preformance measures:
 #'   
-#' * \code{Kendall} Kendalls tau btween the true and esimated topological ordering
+#' * \code{Kendall} Kendalls tau between the true and esimated topological ordering
 #' * \code{Hamming} Structual Hamming Distance between true and estimated graph
 #' * \code{Recall} percent of arrows true positive arrows in estimated graph
 #' * \code{Flipped} percent of arrows flipped compared to true graph
 #' * \code{FDR} percent of arrows false positivesin the estimateed graph
 #' 
+#'   The \code{Kendall} function returnes one numeric value between -1 and 1. 
 #' 
+#' @seealso Both \code{\link{sim_B}} and \code{\link{sim_X}} are used in the 
+#' interior of \code{sim_graph_est}.
 #' 
 #' @md
 #' @examples 
@@ -231,8 +222,34 @@ kendall <- function(true, est) {
 }
 
 
-#' @rdname sim_graph_est
+#' Simulates a graph
+#' 
+#' This is an internal simulation function. It creates a graph with regression 
+#' coefficients.
+#' 
+#' The \code{sim_B} function simulates a causal graph with regression 
+#' coefficients. The graph is stored as matrix, where the (i,j)th entry in the
+#' matrix is non zero only if there is an arrow from j to i in the graph. The 
+#' value in the (i,j)th entry corresponds to the direct causal effect from j
+#' to i.  
+#' 
+#' @param p number of variables to simulate
+#' @param graph_setting either "dense", "sparse", "A", or "B". These settings 
+#'   correspons to the settings described in the article.
+#' @param l lower bound for direct abolute causal effect
+#' @param u upper bound for direct absolute causal effect
+#' @param unique_ordering if \code{TRUE} the simulated graph will have a unique 
+#'   topological ordering
+#' 
+#' @return A matrix encoding a graph.
+#' 
+#' @examples 
+#' sim_B(5, "dense", 0.3, 1)
+#' 
+#' sim_B(10, "A", 0.7, 1)
+#' 
 #' @export
+
 sim_B <- function(p, graph_setting, l, u, unique_ordering = TRUE) {
   if (graph_setting %in% c("sparse", "dense")) {
     if (graph_setting == "sparse") {
@@ -276,7 +293,30 @@ sim_B <- function(p, graph_setting, l, u, unique_ordering = TRUE) {
 }
 
 
-#' @rdname sim_graph_est
+#' Simulates data from a graph
+#' 
+#' This is an internal simulation function for simulating data from a graph. 
+#' 
+#' The \code{sim_B} function simulates a causal graph with regression 
+#' coefficients. The graph must be encoded as an upper triangular matrix.
+#' 
+#' @param B a upper triangular matrix encoding a graph 
+#' @param n number of observations from the graph
+#' @param sigma the common standard error
+#' @param alpha a vector of length equal to the number of parameters given by 
+#'   \code{B}. These \code{alpha}s are multiplied to the common \code{sigma}.
+#' 
+#' @return The \code{sim_X} function returns a matrix with data from the graph 
+#' \code{B} with columns equal to the number of columns in \code{B} and rows 
+#' equal to \code{n}.
+#' 
+#' @example 
+#' (B <- matrix(c(0,0,0,1,0,0,1,1,0), ncol = 3))
+#' 
+#' sim_X(B, 10, 1)
+#' 
+#' sim_X(B, 10, 1, c(1, 5, 10))
+#' 
 #' @export
 sim_X <- function(B, n, sigma, alpha = rep(1, ncol(B))) {
   p <- ncol(B)

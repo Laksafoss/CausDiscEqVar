@@ -3,18 +3,12 @@
 \name{sim_graph_est}
 \alias{sim_graph_est}
 \alias{kendall}
-\alias{sim_B}
-\alias{sim_X}
 \title{Simulation tool for graph_est}
 \usage{
 sim_graph_est(scenarios, top, graph = data.frame(measure = NA, which =
   NA), m)
 
 kendall(true, est)
-
-sim_B(p, graph_setting, l, u, unique_ordering = TRUE)
-
-sim_X(B, n, sigma, alpha = rep(1, ncol(B)))
 }
 \arguments{
 \item{scenarios}{a data frame with columns \code{p}, \code{graph_setting},
@@ -37,27 +31,6 @@ the data sets and their estimated topological orderings.}
 
 \item{est}{one or more estimated topological orderings in a matrix, where
 each column is an estimated topological ordering.}
-
-\item{p}{number of variables to simulate}
-
-\item{graph_setting}{either "dense", "sparse", "A", or "B". These settings
-correspons to the settings described in the article.}
-
-\item{l}{lower bound for direct abolute causal effect}
-
-\item{u}{upper bound for direct absolute causal effect}
-
-\item{unique_ordering}{if \code{TRUE} the simulated graph will have a unique
-topological ordering}
-
-\item{B}{a causal graph}
-
-\item{n}{number of observations from the graph}
-
-\item{sigma}{the common standard error}
-
-\item{alpha}{a vector of length equal to the number of parameters given by
-\code{B}. These \code{alpha}s are multiplied to the common \code{sigma}.}
 }
 \value{
 The \code{sim_graph_est} function returns a data frame with 18 variables and
@@ -66,11 +39,13 @@ x m rows. The first 13 variables are simply the input parameters that
 generated that particular output row. The remaning 5 variables describe the
 preformance measures:
 \itemize{
-\item \code{Kendall} Kendalls tau btween the true and esimated topological ordering
+\item \code{Kendall} Kendalls tau between the true and esimated topological ordering
 \item \code{Hamming} Structual Hamming Distance between true and estimated graph
 \item \code{Recall} percent of arrows true positive arrows in estimated graph
 \item \code{Flipped} percent of arrows flipped compared to true graph
 \item \code{FDR} percent of arrows false positivesin the estimateed graph
+
+The \code{Kendall} function returnes one numeric value between -1 and 1.
 }
 }
 \description{
@@ -78,20 +53,19 @@ This is an internal simulation function for testing preformance of the
 \code{\link{top_order}} and \code{\link{graph_from_top}} function.
 }
 \details{
-These 4 functions are used to simulated and evaluate set simulated data. The
-\code{sim_B} function simulates a causal graph with regression coefficients,
-and the \code{sim_X} function simulates data from some causal graph with
-regression coefficient.
+The \code{sim_graph_est} function is used to simulate and evaluate the
+simulated data. The \code{kendall} is a function that finds the \emph{Kendall's}
+\emph{Tau coefficient} between two topological orderings and is used to evaluate
+the preformance of the estimated topological orderings found by
+\code{\link{top_order}} in the internal of \code{graph_from_top}. This
+coefficient is however only meaningfull when the true ordering is unique.
 
-\code{kendall} is a function that finds the \emph{Kendall's Tau coefficient} and
-is used to evaluate the preformance of the estimated topological orderings
-found by \code{\link{top_order}}. This coefficient is however only meaningfull
-when the true ordering is unique.
-
-In the function \code{sim_graph_est} all three of these functions are use.
-The \code{sim_B} and \code{sim_X} simulate the needed data and the
-\code{kendall} and som internal code then evaluates the different estimated
-topological orderings and graphs.
+In the function \code{sim_graph_est} the three functions \code{kendall},
+\code{\link{sim_B}} and \code{\link{sim_X}} are use. The functions
+\code{\link{sim_B}} and \code{\link{sim_X}} simulate the needed data and then
+the kendall's tau coefficient between the estimated and true topological
+ordering is calculated by \code{kendall} along with a few other preformance
+measures.
 }
 \examples{
 
@@ -151,4 +125,8 @@ SIM <- sim_graph_est(scenarios, top, graph, m = 50)
 
 
 
+}
+\seealso{
+Both \code{\link{sim_B}} and \code{\link{sim_X}} are used in the
+interior of \code{sim_graph_est}.
 }

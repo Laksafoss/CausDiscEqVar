@@ -1,0 +1,61 @@
+---
+title: "Theory"
+author: "Anna Damkjaer Laksafoss"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{CausDiscEqVar}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+Let $X = (X_1, ..., X_p)$ be a random vector and suppose the distribution of $X$ admits to a linear structual equation model (SEM), that is 
+$$X_j = \sum_{k\neq j}\beta_{jk}X_k + \varepsilon_j, \quad \text{for } j = 1, ..., p,$$
+where $\varepsilon_1, ...,\varepsilon_p$ are independent, zero mean random variables, and $(\beta_{jk})_{j,k\in \{1,...,p\}}$ are unknown regression parameters. Assume furthermore that that all $\varepsilon_j$ have a common and unknown finite variance $\sigma^2>0$. The covariance matrix of $X$ may be calculated by 
+$$\Sigma = \mathbb{E}(XX^T)=\sigma^2(I-B)^{-1}(I-B)^{-T},$$
+where $B$ is a $p\times p$ matrix with $jk$th entry equal to $\beta_{jk}$ and zeros in the diagonal
+
+This SEM induces a directed graph with verticies $V=\{1, ..., p\}$ and edges $E=\{(j,k): \beta_{jk} \neq 0\}$. We will assume that this graph is acyclic, which ensures that the graph has at least one sink and one source node. 
+
+In [Chen, Drton and Wang (2018)](#Ref) it is shown that 
+
+* if $X_j$ *has no parents* in the graph, then $\Sigma_{jj}=\sigma^2$.
+* if $X_j$ *has parents* in the graph, then $\Sigma_{jj}>\sigma^2$.
+* if $X_j$ *has no children* in the graph, then $\Sigma^{-1}_{jj} = 1/\sigma^2$.
+* if $X_j$ *has children* in the graph, then $\Sigma^{-1}_{jj} > 1/\sigma^2$.
+
+The first two points allows us to identify *source nodes* in the graph by finding the variables with minimal variance in $\Sigma$, and the last two points allows us to identify *sink nodes* in the graph by finding the variables with minimal precision in $\Sigma^{-1}$. 
+
+For an index $j\in \{1,...,p\}$ and set of indicies $C\subseteq \{1, ..., p\}$ define 
+$$X_{j.C} = X_j - \mathbb{E}[X_j\mid (X_k: k\in C)].$$
+Suppose now that $C$ is an ansestral set, that is, for all $j\in C$ it holds that $an(j)\subseteq C$. Then for all $j\in C$ it holds that $X_{j.C}=0$ and 
+$$X_j = \sum_{k\in C}\beta_{jk}X_k + \varepsilon_j,$$
+furthermore, for all $j\not\in C$ it holds that 
+$$X_{j.C} = \sum_{k\in pa(j)\setminus C}\beta_{jk}X_{k.C} + \varepsilon_j$$
+
+Combining these results with the points above we are able to identify the topological ordering of the graph $\mathcal{G}$ by one of the the two following methods
+
+* **Top Down:** 
+  - Identify a source node $c_1$ by variance minimization, and let $c_1$ be the first entry in the set $C$. 
+  - Condition on the set of ancestors to find $X_j.C$ for all $j\not\in C$ and identify the index of the source node $c_k$ in $(X_{j.C}:j\not\in C)$. Append this source node $c_k$ to the list of ancestors. Repeate this step $p-1$ times untill we have our topological ordering $(c_1, ..., c_p)$. 
+* **Bottom Up:**
+  - Identify a sink node $a_1$ by precision minimization, and let $C=\{1, ..., p\}\setminus \{a_1\}$.
+  - Now considering only $(X_j: j\in C)$ identify a sink $a_k$ and remove it from $C$. Repeat this step $p-1$ times untill we have our ordering topological ordering $(a_p, ..., a_1)$.
+
+
+
+
+# References {#Ref}
+
+Chen, W., Drton, M. \& Wang, Y. S. (2018). On Causal Discovery with Equal Variance Assumption. *arXiv preprint arXiv:1807.03419*. 
+
+Peters, J., \& Bühlmann, P. (2014). Identifiability of Gaussian structural equation models with equal error variances. *Biometrika*, 101(1):219–228.
+
+
