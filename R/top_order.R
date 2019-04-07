@@ -97,6 +97,7 @@ est_step.BU <- function(vars, theta, j, ...) {
 }
 
 est_step.HBU <- function(vars, theta, j, M = 0.5, ...) {
+  print(M)
   index <- setdiff(seq_len(ncol(vars$X)), c(theta, j))
   if (length(index) == 1) {
     vars$X <- cbind(vars$X, 1)
