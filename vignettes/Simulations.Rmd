@@ -4,6 +4,7 @@ output:
   html_document:
     theme: flatly
     toc: true
+    toc_depth: 3
     toc_float: 
       collapsed: false
 vignette: >
@@ -50,10 +51,19 @@ ARTICLE <- ArticleRes %>%
 
 
 
-# Low  -  Dense  -  Top Down
+*** 
+***
+
+&nbsp;
+
+# Low Dim: Model Selection
+
+***
+
+## Dense, Top Down
 ```{r, warning = FALSE, echo = FALSE}
 sim <- subset(SIM, 
-              graph_setting == "dense" & l == 0.3 & 
+              graph_setting == "dense" & l == 0.3 & sigma == 1 &
                 !is.na(measure) & PrefMeasure != "Hamming" & method == "TD")
 art <- subset(ARTICLE,
               graph_setting == "dense" & l == 0.3 &
@@ -75,10 +85,10 @@ ggplot() +
 
 &nbsp;
 
-# Low  -  Dense  -  Bottom Up
+## Dense, Bottom Up
 ```{r, warning = FALSE, echo = FALSE}
 sim <- subset(SIM, 
-              graph_setting == "dense" & l == 0.3 & 
+              graph_setting == "dense" & l == 0.3 &  sigma == 1 &
                 !is.na(measure) & PrefMeasure != "Hamming" & method == "BU")
 art <- subset(ARTICLE,
               graph_setting == "dense" & l == 0.3 &
@@ -101,10 +111,10 @@ ggplot() +
 
 &nbsp;
 
-# Low  -  Sparse  -  Top Down
+## Sparse, Top Down
 ```{r, warning = FALSE, echo = FALSE}
 sim <- subset(SIM, 
-              graph_setting == "sparse" & l == 0.3 & 
+              graph_setting == "sparse" & l == 0.3 &  sigma == 1 &
                 !is.na(measure) & PrefMeasure != "Hamming" & method == "TD")
 art <- subset(ARTICLE,
               graph_setting == "sparse" & l == 0.3 &
@@ -127,10 +137,10 @@ ggplot() +
 
 &nbsp;
 
-# Low  -  Sparse  -  Bottom Up
+## Sparse, Bottom Up
 ```{r, warning = FALSE, echo = FALSE}
 sim <- subset(SIM, 
-              graph_setting == "sparse" & l == 0.3 & 
+              graph_setting == "sparse" & l == 0.3 &  sigma == 1 &
                 !is.na(measure) & PrefMeasure != "Hamming" & method == "BU")
 art <- subset(ARTICLE,
               graph_setting == "sparse" & l == 0.3 &
@@ -153,7 +163,120 @@ ggplot() +
 
 &nbsp;
 
-# High  -  A & B  -  HTD & HBU
+&nbsp;
+
+# Low Dim: Sigma Effect
+
+***
+
+## Dense, Top Down
+```{r, warning = FALSE, echo = FALSE}
+sim <- subset(SIM, 
+              graph_setting == "dense" & l == 0.3 & p != 40 &
+                !is.na(measure) & PrefMeasure != "Hamming" & method == "TD")
+art <- subset(ARTICLE,
+              graph_setting == "dense" & l == 0.3 & p!= 40 &
+                PrefMeasure != "Hamming" & method == "TD")
+
+sim$sigma <- factor(sim$sigma)
+art$sigma <- factor(art$sigma)
+
+ggplot() + 
+    geom_boxplot(aes(x = n, y = Preformance, color = sigma),
+                 data = sim) + 
+    facet_grid(p ~ PrefMeasure) + 
+    geom_point(aes(x = n, y = Preformance), 
+               data = art, color = "black", size = 3) +
+    theme(axis.title.y = element_blank())
+```
+
+
+&nbsp;
+
+## Dense, Bottom Up
+```{r, warning = FALSE, echo = FALSE}
+sim <- subset(SIM, 
+              graph_setting == "dense" & l == 0.3 & p != 40 &
+                !is.na(measure) & PrefMeasure != "Hamming" & method == "BU")
+art <- subset(ARTICLE,
+              graph_setting == "dense" & l == 0.3 & p!= 40 &
+                PrefMeasure != "Hamming" & method == "BU")
+
+sim$sigma <- factor(sim$sigma)
+art$sigma <- factor(art$sigma)
+
+ggplot() + 
+    geom_boxplot(aes(x = n, y = Preformance, color = sigma),
+                 data = sim) + 
+    facet_grid(p ~ PrefMeasure) + 
+    geom_point(aes(x = n, y = Preformance), 
+               data = art, color = "black", size = 3) +
+    theme(axis.title.y = element_blank())
+```
+
+
+
+&nbsp;
+
+## Sparse, Top Down
+```{r, warning = FALSE, echo = FALSE}
+sim <- subset(SIM, 
+              graph_setting == "sparse" & l == 0.3 & p != 40 &
+                !is.na(measure) & PrefMeasure != "Hamming" & method == "TD")
+art <- subset(ARTICLE,
+              graph_setting == "sparse" & l == 0.3 & p!= 40 &
+                PrefMeasure != "Hamming" & method == "TD")
+
+sim$sigma <- factor(sim$sigma)
+art$sigma <- factor(art$sigma)
+
+ggplot() + 
+    geom_boxplot(aes(x = n, y = Preformance, color = sigma),
+                 data = sim) + 
+    facet_grid(p ~ PrefMeasure) + 
+    geom_point(aes(x = n, y = Preformance), 
+               data = art, color = "black", size = 3) +
+    theme(axis.title.y = element_blank())
+```
+
+&nbsp;
+
+## Sparse, Bottom Up
+
+```{r, warning = FALSE, echo = FALSE}
+sim <- subset(SIM, 
+              graph_setting == "sparse" & l == 0.3 & p != 40 &
+                !is.na(measure) & PrefMeasure != "Hamming" & method == "BU")
+art <- subset(ARTICLE,
+              graph_setting == "sparse" & l == 0.3 & p!= 40 &
+                PrefMeasure != "Hamming" & method == "BU")
+
+sim$sigma <- factor(sim$sigma)
+art$sigma <- factor(art$sigma)
+
+ggplot() + 
+    geom_boxplot(aes(x = n, y = Preformance, color = sigma),
+                 data = sim) + 
+    facet_grid(p ~ PrefMeasure) + 
+    geom_point(aes(x = n, y = Preformance), 
+               data = art, color = "black", size = 3) +
+    theme(axis.title.y = element_blank())
+```
+
+
+
+
+
+
+&nbsp;
+
+&nbsp;
+
+# High Dim
+
+***
+
+## Setting A & B, HTD & HBU
 ```{r, warning = FALSE, echo = FALSE}
 sim <- subset(SIM, graph_setting %in% c("A", "B") & 
                 PrefMeasure == "Kendall" & 
@@ -189,5 +312,8 @@ ggplot() +
                position = position_dodge(1.2), size = 3) +
     theme(axis.title.y = element_blank())
 ```
+
+
+
 
 
