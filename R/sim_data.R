@@ -166,5 +166,6 @@
 #' 
 "HighSim"
 
+
 #usethis::use_data(HighSim, HighSim, overwrite = TRUE)
 

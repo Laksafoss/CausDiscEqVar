@@ -68,8 +68,7 @@ ggplot() +
                  data = sim) + 
     facet_grid(p ~ PrefMeasure) + 
     geom_point(aes(x = n, y = Preformance), 
-               data = art, color = "black", 
-               position = position_dodge(0.8), size = 2) +
+               data = art, color = "black", size = 3) +
     theme(axis.title.y = element_blank())
 ```
 
@@ -94,8 +93,7 @@ ggplot() +
                  data = sim) + 
     facet_grid(p ~ PrefMeasure) + 
     geom_point(aes(x = n, y = Preformance), 
-               data = art, color = "black", 
-               position = position_dodge(0.8), size = 2) +
+               data = art, color = "black", size = 3) +
     theme(axis.title.y = element_blank())
 ```
 
@@ -121,8 +119,7 @@ ggplot() +
                  data = sim) + 
     facet_grid(p ~ PrefMeasure) + 
     geom_point(aes(x = n, y = Preformance), 
-               data = art, color = "black", 
-               position = position_dodge(0.8), size = 2) +
+               data = art, color = "black", size = 3) +
     theme(axis.title.y = element_blank())
 ```
 
@@ -148,8 +145,7 @@ ggplot() +
                  data = sim) + 
     facet_grid(p ~ PrefMeasure) + 
     geom_point(aes(x = n, y = Preformance), 
-               data = art, color = "black", 
-               position = position_dodge(0.8), size = 2) +
+               data = art, color = "black", size = 3) +
     theme(axis.title.y = element_blank())
 ```
 
@@ -166,16 +162,23 @@ art <- subset(ARTICLE, graph_setting %in% c("A", "B") &
                 PrefMeasure == "Kendall"& 
                 n %in% c(80, 100) & ratio %in% c("0.5", "0.75", "1"))
 
+lev <- c("HBU (M = 0.5)", "HBU (M = 1.5)", "HBU (M = 3)", 
+         "HTD (search = OMP)", "HTD (search = B&B)")
+
 sim <- sim %>% mutate(
   Method = factor(ifelse(method == "HBU", 
                          paste0(method, " (M = ", M, ")"),
-                         paste0(method, " (search = ", search, ")")))
+                         paste0(method, " (search = ", search, ")")), 
+                  levels = lev)
 )
 art <- art %>% mutate(
   Method = factor(ifelse(method == "HBU", 
                          paste0(method, " (M = ", M, ")"),
-                         paste0(method, " (search = ", search, ")")))
+                         paste0(method, " (search = ", search, ")")),
+                  levels = lev)
 )
+
+
 
 ggplot() + 
     geom_boxplot(aes(x = n, y = (Preformance-50)/50, color = Method), 
@@ -183,7 +186,7 @@ ggplot() +
     facet_grid(ratio ~ graph_setting) + 
     geom_point(aes(x = n, y = (Preformance-50)/50, shape = Method), 
                data = art, color = "black",
-               position = position_dodge(1), size = 2) +
+               position = position_dodge(1.2), size = 3) +
     theme(axis.title.y = element_blank())
 ```
 
